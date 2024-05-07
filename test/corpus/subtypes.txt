@@ -1,0 +1,27 @@
+===
+Simple
+===
+private type integer int;
+---
+
+(source_file
+  (subtype
+    (visibility)
+    (nested_type
+      (reference))
+    (name)))
+
+===
+Simple with attributes
+===
+type charstring str with { encode "UTF8" }
+---
+
+(source_file
+  (subtype
+    (nested_type
+      (reference))
+    (name)
+    (attributes
+      (attribute
+        (string)))))

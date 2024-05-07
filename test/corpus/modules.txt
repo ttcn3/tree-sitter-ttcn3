@@ -1,0 +1,31 @@
+===
+Multiple modules
+===
+
+module A { };
+module B { }
+
+---
+
+(source_file
+  (module
+    (name))
+  (module
+    (name)))
+
+===
+Nested modules
+===
+
+module A {
+    module B {
+    }
+}
+
+---
+
+(source_file
+  (module
+    (name)
+    (module
+      (name))))

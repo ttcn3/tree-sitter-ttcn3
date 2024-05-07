@@ -1,0 +1,7 @@
+===
+Configuration
+===
+
+friend configuration C() runs on C system C {} with {}
+
+---

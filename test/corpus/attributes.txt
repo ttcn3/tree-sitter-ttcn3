@@ -1,0 +1,66 @@
+===
+Empty with
+===
+function f() with {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters)
+    (attributes)))
+
+===
+Extension attribute
+===
+function f() with { extension "foo" }
+---
+
+(source_file
+  (func
+    (name)
+    (parameters)
+    (attributes
+      (attribute
+        (string)))))
+
+===
+Multiple extensions attributes
+===
+function f() with { extension "foo"; extension "bar" }
+---
+
+(source_file
+  (func
+    (name)
+    (parameters)
+    (attributes
+      (attribute
+        (string))
+      (attribute
+        (string)))))
+
+===
+Attributes
+===
+function f() with {
+	extension "A";
+	encode "B";
+	variant "C";
+	display "D";
+}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters)
+    (attributes
+      (attribute
+        (string))
+      (attribute
+        (string))
+      (attribute
+        (string))
+      (attribute
+        (string)))))

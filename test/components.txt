@@ -1,0 +1,5 @@
+===
+Simple
+===
+public type component C extends D,E {} with {}
+---

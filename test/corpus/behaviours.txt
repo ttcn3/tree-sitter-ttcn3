@@ -1,0 +1,50 @@
+===
+Function
+===
+
+function f() {}
+
+---
+
+(source_file
+  (func
+    (name)
+    (parameters)
+    (block)))
+
+===
+External Function
+===
+external function f();
+---
+
+(source_file
+  (external_function
+    (name)
+    (parameters)))
+
+===
+Altstep
+===
+
+altstep a() {}
+
+---
+
+(source_file
+  (altstep
+    (name)
+    (parameters)
+    (block)))
+
+===
+Testcase
+===
+testcase t() {}
+---
+
+(source_file
+  (testcase
+    (name)
+    (parameters)
+    (block)))

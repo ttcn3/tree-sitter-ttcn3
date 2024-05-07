@@ -1,0 +1,5 @@
+===
+Simple
+===
+private type external class @foo C extends A runs on B {} finally { } with { }
+---

@@ -1,0 +1,24 @@
+===
+Type reference vs. name
+===
+modulepar NAME := {1,2,3};
+modulepar REF NAME := {1,2,3};
+---
+    (source_file
+      (module_parameter
+        (declarator
+          (name)
+          (composite_literal
+            (number)
+            (number)
+            (number))))
+      (module_parameter
+        (nested_type
+          (reference))
+        (declarator
+          (name)
+          (composite_literal
+            (number)
+            (number)
+            (number)))))
+

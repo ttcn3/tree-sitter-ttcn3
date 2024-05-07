@@ -1,0 +1,17 @@
+===
+Function type
+===
+
+private type function f() runs on C return int;
+
+---
+
+(source_file
+  (function_type
+    (visibility)
+    (name)
+    (parameters)
+    (reference)
+    (return_type
+      (nested_type
+        (reference)))))

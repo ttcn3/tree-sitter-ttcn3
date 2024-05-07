@@ -1,0 +1,21 @@
+===
+Groups
+===
+friend group foo {
+   public group bar {
+   };
+}
+group bar {
+} with {}
+---
+
+(source_file
+  (group
+    (visibility)
+    (name)
+    (group
+      (visibility)
+      (name)))
+  (group
+    (name)
+    (attributes)))
