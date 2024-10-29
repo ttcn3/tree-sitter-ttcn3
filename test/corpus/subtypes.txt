@@ -24,4 +24,4 @@ type charstring str with { encode "UTF8" }
     (name)
     (attributes
       (attribute
-        (string)))))
+        (charstring)))))

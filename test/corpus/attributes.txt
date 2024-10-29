@@ -22,7 +22,7 @@ function f() with { extension "foo" }
     (parameters)
     (attributes
       (attribute
-        (string)))))
+        (charstring)))))
 
 ===
 Multiple extensions attributes
@@ -36,9 +36,9 @@ function f() with { extension "foo"; extension "bar" }
     (parameters)
     (attributes
       (attribute
-        (string))
+        (charstring))
       (attribute
-        (string)))))
+        (charstring)))))
 
 ===
 Attributes
@@ -57,10 +57,10 @@ function f() with {
     (parameters)
     (attributes
       (attribute
-        (string))
+        (charstring))
       (attribute
-        (string))
+        (charstring))
       (attribute
-        (string))
+        (charstring))
       (attribute
-        (string)))))
+        (charstring)))))
