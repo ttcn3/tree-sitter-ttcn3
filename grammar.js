@@ -237,7 +237,7 @@ module.exports = grammar({
       'class',
       field('modifiers', optional($.modifiers)),
       $._parameterized_name,
-      field('super_class', optional(seq('extends', $.reference))),
+      field('super_class', optional(seq('extends', $.references))),
       field('runs_on', optional(seq('runs', 'on', $.reference))),
       field('mtc', optional(seq('mtc', $.reference))),
       field('system', optional(seq('system', $.reference))),
