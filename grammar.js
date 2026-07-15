@@ -103,6 +103,10 @@ module.exports = grammar({
     // lexer prefix '@' is identical; tree-sitter can't disambiguate without
     // seeing what comes after.
     [$.modifier, $.template_modifier],
+    // TP3.1: 'map from T to T' starts both `type map ... Name;` (map_type) and
+    // `record { map from T to T f; }` (nested_map_type as a field type).
+    // Disambiguated only by what comes after 'to Type'.
+    [$.map_type, $.nested_map_type],
 
     // Pre-existing conflicts: a `timer` or `port` declaration inside a
     // `control { }` block parses ambiguously as either another declaration
@@ -1364,7 +1368,11 @@ module.exports = grammar({
       field('body', $.block),
     ),
 
-    nested_type: $ => choice($.reference, 'anytype'),
+    nested_type: $ => choice($.reference, 'anytype', $.nested_map_type),
+
+    // Spec A.26: NestedMapDef ::= "map" "from" Type "to" TypeOrNestedTypeDef.
+    // Used as the type of a record/set/union field (no identifier follows the type).
+    nested_map_type: $ => seq('map', 'from', $.nested_type, 'to', $.nested_type),
 
     port_attributes: $ => seq(
       '{',
