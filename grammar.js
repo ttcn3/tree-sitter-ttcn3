@@ -62,6 +62,15 @@ module.exports = grammar({
     // picks the correct parse.
     [$.timer_decl],
     [$.port_decl],
+
+    // Several predefined functions (ispresent, isbound, isvalue, ischosen)
+    // share their name with the presence_check rule. Both are valid at the
+    // same parse state; let GLR pick the right one.
+    [$.presence_check, $.predefined_func_name],
+
+    // `(expr)` parses as either `parenthesized_expression` or
+    // `template_values` (a single-element tuple). Let GLR pick.
+    [$.parenthesized_expression, $.template_values],
   ],
 
   rules: {
@@ -514,7 +523,20 @@ module.exports = grammar({
       $.inline_template,
       alias('testcase', $._identifier),
 
+      $.decoded_field_reference,
+      $.parenthesized_expression,
+      $.presence_check,
+      $.predefined_func_call,
       $.reference,
+    ),
+
+    parenthesized_expression: $ => seq('(', $._expression, ')'),
+
+    presence_check: $ => choice(
+      seq(field('function', 'ispresent'), '(', field('operand', $._expression), ')'),
+      seq(field('function', 'isbound'),   '(', field('operand', $._expression), ')'),
+      seq(field('function', 'isvalue'),  '(', field('operand', $._expression), ')'),
+      seq(field('function', 'ischosen'), '(', field('operand', $._expression), ',', field('variant', $._identifier), ')'),
     ),
 
     unary_expression: $ => choice(
@@ -524,11 +546,6 @@ module.exports = grammar({
     ),
 
     binary_expression: $ => choice(
-      prec.left(PREC.primary, seq(
-        field('left', $.reference),
-        field('operator', '=>'),
-        field('right', $._expression),
-      )),
       prec.left(PREC.multiplicative, seq(
         field('left', $._expression),
         field('operator', choice('*', '/', 'mod', 'rem')),
@@ -663,6 +680,39 @@ module.exports = grammar({
         field('function', seq('all', 'from')),
         field('arguments', alias($._identifier, $.reference))), // TODO: use correct expressions instead of just identifier
     )),
+
+    // Decoded field reference: `reference => Type`. Per TTCN-3 Annex A.560
+    // this re-interprets an already-decoded bitstream field as the given
+    // type. The right-hand side is a type reference, not an arbitrary
+    // expression.
+    decoded_field_reference: $ => prec(PREC.primary, seq(
+      field('operand', $.reference),
+      '=>',
+      field('type', $.nested_type),
+    )),
+
+    // Predefined-function call (Annex C): a dedicated rule that matches
+    // any of the ~40 standard function names plus allowing them to be
+    // called like a regular function. Keeps the generic `reference`-then-
+    // call path for user-defined functions.
+    predefined_func_call: $ => prec(PREC.primary, seq(
+      field('function', $.predefined_func_name),
+      '(',
+      field('arguments', sepBy(',', $._expression)),
+      ')',
+    )),
+
+    predefined_func_name: _ => choice(
+      'int2char', 'int2unichar', 'int2bit', 'int2enum', 'int2hex', 'int2oct',
+      'bit2int', 'bit2hex', 'bit2oct', 'bit2str',
+      'char2int', 'char2oct', 'oct2char', 'oct2bit', 'oct2int', 'oct2hex', 'oct2str',
+      'hex2int', 'hex2oct', 'hex2bit', 'hex2str',
+      'unichar2int', 'unichar2oct', 'oct2unichar',
+      'lengthof', 'sizeof', 'ispresent', 'isbound', 'isvalue', 'ischosen',
+      'match', 'valueof', 'decmatch', 'decvalue', 'encvalue',
+      'replace', 'substr', 'regexp', 'str2int', 'float2int', 'int2float',
+      'isvalue', 'testcasename', 'hostid', 'get_stringencoding',
+    ),
 
     redirection_expr: $ => seq(
       $.reference,
