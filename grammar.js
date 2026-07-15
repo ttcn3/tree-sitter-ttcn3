@@ -56,6 +56,10 @@ module.exports = grammar({
     [$.var_decl],
     [$.const_decl],
 
+    // T1.5: `decmatch` is a 2-arg matching symbol that looks like a function call.
+    // Conflicts with predefined_func_name (which also accepts 2-arg calls). GLR resolves.
+    [$.decmatch, $.predefined_func_name],
+
     // Pre-existing conflicts: a `timer` or `port` declaration inside a
     // `control { }` block parses ambiguously as either another declaration
     // or as the continuation of the previous one (separated by `,`). GLR
@@ -629,6 +633,12 @@ module.exports = grammar({
       $.ifpresent,
       $.length_attribute,
       $.range,
+      $.complement,
+      $.subset,
+      $.superset,
+      $.permutation,
+      $.decmatch,
+      $.pattern_match,
       $.function_literal,
       $.inline_template,
       alias('testcase', $._identifier),
@@ -707,6 +717,13 @@ module.exports = grammar({
     length_attribute: $ => seq('length', '(', $._expression, ')'),
     // Range: `( expr .. expr )` — spec B.1.1. May conflict with template_values; GLR resolves.
     range: $ => seq('(', $._expression, '..', $._expression, ')'),
+    // Remaining matching symbol function-like constructs (spec B.1.4–B.1.7).
+    complement: $ => seq('complement', '(', $._expression, ')'),
+    subset: $ => seq('subset', '(', $._expression, ')'),
+    superset: $ => seq('superset', '(', $._expression, ')'),
+    permutation: $ => seq('permutation', '(', $._expression, ')'),
+    decmatch: $ => seq('decmatch', '(', $._expression, ',', $._expression, ')'),
+    pattern_match: $ => seq('pattern', field('pattern', $.charstring)),
 
     function_literal: $ => seq(
       'function',

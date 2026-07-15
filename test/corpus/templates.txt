@@ -602,3 +602,114 @@ template integer Ranged := (1 .. 10);
           (number))
         (primary
           (number))))))
+
+===
+Template with complement body
+===
+template MyRec CompT := complement({1, 2, 3});
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (complement
+        (primary
+          (composite_literal
+            (primary
+              (number))
+            (primary
+              (number))
+            (primary
+              (number))))))))
+
+===
+Template with subset body
+===
+template MyRec SubT := subset({1, 2, 3});
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (subset
+        (primary
+          (composite_literal
+            (primary
+              (number))
+            (primary
+              (number))
+            (primary
+              (number))))))))
+
+===
+Template with superset body
+===
+template MyRec SupT := superset({1});
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (superset
+        (primary
+          (composite_literal
+            (primary
+              (number))))))))
+
+===
+Template with permutation body
+===
+template MyRec PermT := permutation({1, 2, 3});
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (permutation
+        (primary
+          (composite_literal
+            (primary
+              (number))
+            (primary
+              (number))
+            (primary
+              (number))))))))
+
+===
+Template with decmatch body
+===
+template MyRec DecT := decmatch("X", "Y");
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (decmatch
+        (primary
+          (charstring))
+        (primary
+          (charstring))))))
+
+===
+Template with pattern body
+===
+template charstring PatT := pattern "abc*";
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (pattern_match
+        (charstring)))))
