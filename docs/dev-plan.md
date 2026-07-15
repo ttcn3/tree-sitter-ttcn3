@@ -134,7 +134,7 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 | 0 — Expressions | **done** (8/9 tasks; E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.7, E0.8, E0.9 — E0.1 closed 2026-07-15, E0.5 closed 2026-07-15) | **yes** (everything builds on it) |
 | 1 — Templates | 0 days remaining (T1.1–T1.8 all done 2026-07-15) | **yes** |
 | 2 — Statements/Comm | 7–10 days | **yes** |
-| 3 — Types/Ports | 4–6 days (3 new tasks TP3.9, TP3.10, TP3.11) | mostly parallel |
+| 3 — Types/Ports | **done** (TP3.1, TP3.2, TP3.3, TP3.4, TP3.6, TP3.7, TP3.8, TP3.9, TP3.10, TP3.11 — TP3.5 deferred, NR5GC has no usage) | mostly parallel |
 | 4 — Validation | 5–7 days | **yes** (regression-protect) |
 | 5 — Polish | 2.5–4 days (P5.1 deduped into QW4) | cleanup |
 | **Total** | **27–40 working days remaining** | — |
