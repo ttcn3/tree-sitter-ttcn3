@@ -146,29 +146,128 @@ module M {
 (source_file
   (module
     (name)
-    (record_of_type
-      (length_spec
-        (number))
+    (subtype
       (nested_type
-        (reference))
+        (nested_record_of_type
+          (length_spec
+            (number))
+          (nested_type
+            (reference))))
       (name))
-    (record_of_type
-      (length_spec
-        (number)
-        (number))
+    (subtype
       (nested_type
-        (reference))
+        (nested_record_of_type
+          (length_spec
+            (number)
+            (number))
+          (nested_type
+            (reference))))
       (name))
-    (record_of_type
-      (length_spec
-        (number)
-        (number))
+    (subtype
       (nested_type
-        (reference))
+        (nested_record_of_type
+          (length_spec
+            (number)
+            (number))
+          (nested_type
+            (reference))))
       (name))
-    (set_of_type
-      (length_spec
-        (number))
+    (subtype
+      (nested_type
+        (nested_set_of_type
+          (length_spec
+            (number))
+          (nested_type
+            (reference))))
+      (name))))
+
+===
+Record field with optional modifier
+===
+module M {
+  type record R {
+    IEI8_Type iei optional,
+    IEI8_Type iel,
+    @default IEI8_Type ier
+  };
+  type integer IEI8_Type;
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)
+        (optional_modifier))
+      (field
+        (nested_type
+          (reference))
+        (name))
+      (field
+        (default_modifier)
+        (nested_type
+          (reference))
+        (name)))
+    (subtype
       (nested_type
         (reference))
       (name))))
+
+===
+Record with nested record-of type field
+===
+module M {
+  type record R {
+    record of integer T optional,
+    record length(2) of charstring S,
+    set of float U,
+    record of CAG_Info listOfCAGInfos optional
+  };
+  type record CAG_Info { integer iel };
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (nested_record_of_type
+            (nested_type
+              (reference))))
+        (name)
+        (optional_modifier))
+      (field
+        (nested_type
+          (nested_record_of_type
+            (length_spec
+              (number))
+            (nested_type
+              (reference))))
+        (name))
+      (field
+        (nested_type
+          (nested_set_of_type
+            (nested_type
+              (reference))))
+        (name))
+      (field
+        (nested_type
+          (nested_record_of_type
+            (nested_type
+              (reference))))
+        (name)
+        (optional_modifier)))
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))))

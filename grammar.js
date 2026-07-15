@@ -96,6 +96,18 @@ module.exports = grammar({
     // V1.1: `case (a, b) {...}` — multiple case-label expressions (spec Annex A
     // rule 590) overlap with optional trailing `;` between select clauses. GLR.
     [$.select_case_clause],
+    // V1.2: `declarator [N]` — NR5GC uses `const integer tsc_Foo[75] := {...}`
+    // for untyped array constants with embedded size hint. Strict TTCN-3 spec
+    // wants `record length(75) of integer` instead, but NR5GC's notation is so
+    // widespread that the grammar accepts it. The `[`, integer `N`, and `]`
+    // overlap with index_expression after the declarator's _parameterized_name.
+    [$.declarator],
+    // V1.3: `record` token at start of a field type. `record_of_type` and
+    // `nested_record_of_type` have identical BNF (record + optional length +
+    // "of" + type) and the parser can't decide on linear lookahead whether a
+    // top-level type definition or a nested-type-in-field follows. GLR.
+    [$.record_of_type, $.nested_record_of_type],
+    [$.set_of_type, $.nested_set_of_type],
     // TP3.9: 'pattern "X"' — the same shape appears in both the
     // subtype-constraint form `(pattern "X")` and the template-body matching
     // form `pattern "X"` (used inside template bodies). Distinguishable only
@@ -382,6 +394,7 @@ module.exports = grammar({
       $._parameterized_name,
       field('element_value_constraint', optional($.template_values)),
       field('element_length_constraint', optional($.length_spec)),
+      field('is_optional', optional($.optional_modifier)),
       field('attributes', optional($.attributes)),
     ),
 
@@ -394,6 +407,7 @@ module.exports = grammar({
       $._parameterized_name,
       field('element_value_constraint', optional($.template_values)),
       field('element_length_constraint', optional($.length_spec)),
+      field('is_optional', optional($.optional_modifier)),
       field('attributes', optional($.attributes)),
     ),
 
@@ -458,7 +472,7 @@ module.exports = grammar({
       'template',
       field('restriction', optional(seq('(', $.template_restriction, ')'))),
       field('modifiers', optional($.template_modifier)),
-      field('type', optional($.name)),
+      field('type', optional($._parameterized_name)),
       $._parameterized_name,
       field('parameters', optional($.parameters)),
       field('modifies', optional($._modifies_spec)),
@@ -760,7 +774,11 @@ module.exports = grammar({
     // Distinct from composite_literal (the list notation `{ expr, … }`).
     compound_value: $ => seq(
       '{',
-      sepBy1(',', seq(field('field', $.name), ':=', field('value', $._expression))),
+      sepBy1(',', seq(
+        field('field', $.name),
+        field('value', optional(seq(':=', $._expression))),
+        field('ifpresent', optional($.ifpresent)),
+      )),
       '}',
     ),
 
@@ -910,6 +928,7 @@ module.exports = grammar({
 
     _parameterized_name: $ => seq(
       field('name', $.name),
+      field('selectors', repeat(seq('.', $.name))),
       field('type_parameters', optional($.type_parameters)),
     ),
 
@@ -1381,7 +1400,23 @@ module.exports = grammar({
       field('body', $.block),
     ),
 
-    nested_type: $ => choice($.reference, 'anytype', prec(1, seq('universal', 'charstring')), $.nested_map_type),
+    nested_type: $ => choice(
+      $.reference,
+      'anytype',
+      prec(1, seq('universal', 'charstring')),
+      $.nested_map_type,
+      $.nested_record_of_type,
+      $.nested_set_of_type,
+    ),
+
+    // Spec A.1.7.7 NestedRecordOfDef: "record" [StringLength] "of" TypeOrNestedTypeDef
+    nested_record_of_type: $ => seq(
+      'record', field('length_constraint', optional($.length_spec)), 'of', $.nested_type,
+    ),
+    // Spec A.1.7.7 NestedSetOfDef: "set" [StringLength] "of" TypeOrNestedTypeDef
+    nested_set_of_type: $ => seq(
+      'set', field('length_constraint', optional($.length_spec)), 'of', $.nested_type,
+    ),
 
     // Spec A.26: NestedMapDef ::= "map" "from" Type "to" TypeOrNestedTypeDef.
     // Used as the type of a record/set/union field (no identifier follows the type).
@@ -1395,6 +1430,7 @@ module.exports = grammar({
 
     declarator: $ => seq(
       $._parameterized_name,
+      field('array_dim', optional(seq('[', $._expression, ']'))),
       field('value', optional(seq(':=', $._expression))),
     ),
 
@@ -1456,14 +1492,17 @@ module.exports = grammar({
     ),
 
     field: $ => seq(
-      field('default', optional('@default')),
+      field('default', optional($.default_modifier)),
       field('type', $.nested_type),
       field('name', optional($.name)),
       field('array_def', optional($.array_def)),
       field('value_constraint', optional($.template_values)),
       field('length_constraint', optional($.length_spec)),
-      field('optional', optional('optional')),
+      field('is_optional', optional($.optional_modifier)),
     ),
+
+    default_modifier: _ => '@default',
+    optional_modifier: _ => 'optional',
 
     array_def: $ => repeat1(seq('[', $._expression, ']')),
 
@@ -1558,8 +1597,8 @@ module.exports = grammar({
     boolean_literal: _ => choice('true', 'false'),
     verdict_literal: _ => choice('none', 'pass', 'inconc', 'fail', 'error'),
     bitstring: $ => /'([01*? ])+'(b|B)/,
-    hexstring: $ => /'([0..9A-Fa-f*? ])+'(h|H)/,
-    octetstring: $ => /'([0..9A-Fa-f*? ])+'(o|O)/,
+    hexstring: $ => /'([0-9A-Fa-f*? ])+'(h|H)/,
+    octetstring: $ => /'([0-9A-Fa-f*? ])+'(o|O)/,
     malformed_string: $ => /'[^']+'[a-zA-Z_]*/,
 
     number: _ => token(seq(/\d[\d_]*(\.\d[\d_]*)?/, optional(/[eE][+-]?\d[\d_]*/),)),
