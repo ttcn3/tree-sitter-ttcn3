@@ -1,0 +1,252 @@
+===
+Template with (value) restriction
+===
+template (value) integer t := 5;
+---
+
+(source_file
+  (template
+    (template_restriction)
+    (reference)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with (present) restriction
+===
+template (present) integer t := 5;
+---
+
+(source_file
+  (template
+    (template_restriction)
+    (reference)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with (omit) restriction
+===
+template (omit) integer t := omit;
+---
+
+(source_file
+  (template
+    (template_restriction)
+    (reference)
+    (name)
+    (primary)))
+
+===
+Template without restriction
+===
+template integer t := 5;
+---
+
+(source_file
+  (template
+    (reference)
+    (name)
+    (primary
+      (number))))
+
+===
+Function with template (value) parameter
+===
+function f(template (value) integer p_x) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Function with template (omit) parameter
+===
+function f(template (omit) HttpMessageBody p_body) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Function with template (present) parameter
+===
+function f(template (present) ServerVal_List p_tokens) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Function with bare template parameter (no restriction)
+===
+function f(template integer p_x) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template)
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Var template with (omit) restriction
+===
+var template (omit) ContentType v_ct := omit;
+---
+
+(source_file
+  (var_decl
+    (nested_template
+      (template_restriction))
+    (nested_type
+      (reference))
+    (declarator
+      (name)
+      (primary))))
+
+===
+Var template with (present) restriction
+===
+var template (present) UserAgent v_ua := 5;
+---
+
+(source_file
+  (var_decl
+    (nested_template
+      (template_restriction))
+    (nested_type
+      (reference))
+    (declarator
+      (name)
+      (primary
+        (number)))))
+
+===
+Module parameter with template (value) restriction
+===
+modulepar template (value) integer px := 5;
+---
+
+(source_file
+  (module_parameter
+    (nested_template
+      (template_restriction))
+    (nested_type
+      (reference))
+    (declarator
+      (name)
+      (primary
+        (number)))))
+
+===
+Const with template (value) restriction
+===
+const template (value) integer c := 5;
+---
+
+(source_file
+  (const_decl
+    (nested_template
+      (template_restriction))
+    (nested_type
+      (reference))
+    (declarator
+      (name)
+      (primary
+        (number)))))
+
+===
+Return type with template (value) restriction
+===
+function f() return template (value) integer {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters)
+    (return_type
+      (nested_template
+        (template_restriction))
+      (nested_type
+        (reference)))
+    (block)))
+
+===
+Function with regular (non-template) parameter
+===
+function f(integer p_x) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Function with multiple parameters, mixed template/value
+===
+function f(template (value) integer p_x, integer p_y, template (omit) charstring p_z) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name))
+      (parameter
+        (nested_type
+          (reference))
+        (name))
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name)))
+    (block)))

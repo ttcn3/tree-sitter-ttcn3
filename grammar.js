@@ -1113,6 +1113,7 @@ module.exports = grammar({
 
     parameter: $ => seq(
       field('direction', optional(choice('in', 'out', 'inout'))),
+      field('template_restriction', optional($.nested_template)),
       field('type', $.nested_type),
       field('name', $.name),
       field('array_def', optional($.array_def)),

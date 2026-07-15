@@ -4,7 +4,7 @@
 
 This plan completes the tree-sitter TTCN-3 grammar from its current WIP state to a grammar that parses real-world 3GPP conformance TTCN code. See [`gap-analysis.md`](./gap-analysis.md) for the underlying inventory.
 
-> **Branch status (2026-07-15):** Quick Wins 3 of 5 done (QW1 done, QW3 **blocked — needs redesign**, QW4 done, QW5 done); **Phase 0 expressions — 8 of 9 tasks done** (E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.8, E0.9 landed; E0.7 `-infinity` closed via QW1). 0 corpus tests failing (35/35 pass). See inline status notes per task.
+> **Branch status (2026-07-15):** Quick Wins 3 of 5 done (QW1 done, QW3 **blocked — needs redesign**, QW4 done, QW5 done); Phase 0 expressions — 8 of 9 tasks done (E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.8, E0.9 landed; E0.7 `-infinity` closed via QW1). **Phase 1 templates — 1 of 8 tasks done** (T1.1 `TemplateRestriction` landed). 0 corpus tests failing (50/50 pass). See inline status notes per task.
 
 ---
 
@@ -46,7 +46,7 @@ Land these as standalone PRs before the big phases to fix the most-cited real-wo
 
 | Task | Description | Effort |
 |------|-------------|--------|
-| **T1.1** | Add `TemplateRestriction` properly: `(value)`, `(present)`, `(omit)`, plus no-restriction defaults. Wire into `template`, `parameter`, `var_decl` (template variant). | 0.5 day |
+| **T1.1** | Add `TemplateRestriction` properly: `(value)`, `(present)`, `(omit)`, plus no-restriction defaults. Wire into `template`, `parameter`, `var_decl` (template variant). | 0.5 day | ✅ done (2026-07-15) — `template_restriction` rule (`choice("omit", "value", "present")`) was already in place, and was already wired into `template` (bare parens form), `module_parameter` / `const_decl` / `var_decl` / `return_type` (via `nested_template` = `template(...)` form). The only missing site was `parameter` (formal parameter list). Added `field('template_restriction', optional($.nested_template))` to the `parameter` rule. This unblocks real-world 3GPP code like `function f(template (omit) HttpMessageBody p_body)`. New corpus file `test/corpus/templates.txt` with 15 tests covering all 3 restrictions × {template, parameter, var, modulepar, const, return} + mixed cases. All 50/50 corpus tests pass. Real-world 3GPP scan (HTTP_CommonTemplates.ttcn): no new ERROR nodes introduced — the 17 pre-existing errors are from T1.5 (MatchingSymbol `?`/`*`), Phase 2 statements, etc. |
 | **T1.2** | Add modifier chain `[FuzzyModifier][DeterministicModifier][AbstractModifier]` for `template` and `function`. | 0.5 day |
 | **T1.3** | Add `BaseTemplate` — `(Type\|Signature) Name [type_parameters] [(TemplateOrValueFormalParList)]` and `FormalTemplatePar` for parameterized templates. | 1 day |
 | **T1.4** | Add `BaseTemplateBody ::= SimpleSpec \| FieldSpecList \| ArrayValueOrAttrib` and `SimpleSpec ::= … \| SimpleTemplateSpec`. | 1 day |
@@ -132,7 +132,7 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 |-------|--------|---------------|
 | Quick Wins | 0.5 day remaining (1 of 5 open: **QW3 `inline_template` blocked — needs redesign**) | no (parallel) |
 | 0 — Expressions | **done** (8/9 tasks; E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.7, E0.8, E0.9 — E0.1 closed 2026-07-15, E0.5 closed 2026-07-15) | **yes** (everything builds on it) |
-| 1 — Templates | 7–10 days | **yes** |
+| 1 — Templates | 7–10 days remaining (T1.1 done 2026-07-15) | **yes** |
 | 2 — Statements/Comm | 7–10 days | **yes** |
 | 3 — Types/Ports | 4–6 days (3 new tasks TP3.9, TP3.10, TP3.11) | mostly parallel |
 | 4 — Validation | 5–7 days | **yes** (regression-protect) |
