@@ -499,7 +499,7 @@ module.exports = grammar({
       field('parameters', optional($.parameters)),
       field('runs_on', optional(seq('runs', 'on', $.reference))),
       '{',
-      // TODO: Mode Spec
+      field('body', repeat(seq($._statement, optional(';')))),
       '}',
       field('attributes', optional($.attributes)),
     ),
@@ -1519,7 +1519,7 @@ module.exports = grammar({
     octetstring: $ => /'([0..9A-Fa-f*? ])+'(o|O)/,
     malformed_string: $ => /'[^']+'[a-zA-Z_]*/,
 
-    number: _ => token(seq(/\d+(\.\d+)?/, optional(/[eE][+-]?[0-9][0-9_]*/),)),
+    number: _ => token(seq(/\d[\d_]*(\.\d[\d_]*)?/, optional(/[eE][+-]?\d[\d_]*/),)),
 
     reserved_number: _ => choice('infinity', 'not_a_number'),
 

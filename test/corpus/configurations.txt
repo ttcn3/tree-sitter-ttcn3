@@ -15,3 +15,27 @@ friend configuration C() runs on C system C {} with {}
     (reference)
     (block)
     (attributes)))
+
+===
+Mode definition with statement body
+===
+module M {
+  mode MyMode() runs on C {
+    setverdict(pass);
+    log("running");
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (mode_definition
+      (name)
+      (parameters)
+      (reference)
+      (setverdict_stmt
+        (verdict_literal))
+      (log_stmt
+        (primary
+          (charstring))))))

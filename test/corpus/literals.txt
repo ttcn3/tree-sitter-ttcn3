@@ -47,3 +47,46 @@ Negative infinity
   (unary_expression
     (primary
       (reserved_number))))
+
+===
+Numbers with underscore separators
+===
+module M {
+  const integer x1 := 1_000_000;
+  const float x2 := 1_000.5_5;
+  const float x3 := 1_0E2_0;
+  const integer x4 := 1_2_3;
+}
+---
+
+(source_file
+  (module
+    (name)
+    (const_decl
+      (nested_type
+        (reference))
+      (declarator
+        (name)
+        (primary
+          (number))))
+    (const_decl
+      (nested_type
+        (reference))
+      (declarator
+        (name)
+        (primary
+          (number))))
+    (const_decl
+      (nested_type
+        (reference))
+      (declarator
+        (name)
+        (primary
+          (number))))
+    (const_decl
+      (nested_type
+        (reference))
+      (declarator
+        (name)
+        (primary
+          (number))))))
