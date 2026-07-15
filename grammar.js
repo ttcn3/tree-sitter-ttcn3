@@ -902,6 +902,10 @@ module.exports = grammar({
       $.call_stmt,
       $.reply_stmt,
       $.raise_stmt,
+      $.connect_stmt,
+      $.map_stmt,
+      $.disconnect_stmt,
+      $.unmap_stmt,
       $.reference,
       $.redirection_expr,
       $.assignment,
@@ -1046,6 +1050,31 @@ module.exports = grammar({
       field('sig', $._expression), ',', field('template', $._expression), ')',
       field('to', optional($.to_clause)),
     )),
+    // S2.5: spec rule 290 PortRef = ComponentRef ":" ArrayIdentifierRef
+    // ComponentRef = ObjectReference | "system" | SelfOp | "mtc"
+    port_ref: $ => seq(field('component', $._identifier), ':', field('port_id', $._identifier)),
+    // S2.5: spec rule 287 ConnectStatement = "connect" "(" PortRef "," PortRef ")"
+    connect_stmt: $ => prec(1, seq('connect', '(', field('port_refs', $.port_ref), ',', field('port_refs', $.port_ref), ')')),
+    // S2.5: spec rule 297 MapStatement = "map" "(" PortRef "," PortRef ")" ["param" ActualParList]
+    map_stmt: $ => prec(1, seq(
+      'map', '(', field('port_refs', $.port_ref), ',', field('port_refs', $.port_ref), ')',
+      field('params', optional(seq('param', $.actual_parameters))),
+    )),
+    // S2.5: spec rule 292 DisconnectStatement = "disconnect" [SingleConnectionSpec | AllConnectionsSpec | AllPortsSpec | AllCompsAllPortsSpec]
+    disconnect_stmt: $ => prec(1, seq('disconnect', field('target', optional(choice(
+      seq('(', field('port_refs', $.port_ref), ',', field('port_refs', $.port_ref), ')'),
+      seq('(', field('port_refs', $.port_ref), ')'),
+      seq('(', field('component_ref', $._identifier), ':', 'all', 'port', ')'),
+      seq('(', 'all', 'component', ':', 'all', 'port', ')'),
+    ))))),
+    // S2.5: spec rule 300 UnmapStatement = "unmap" [SingleConnectionSpec[ParamClause] | AllConnectionsSpec[ParamClause] | AllPortsSpec | AllCompsAllPortsSpec | "(" ValueRef "," SingleExpression ")"]
+    unmap_stmt: $ => prec(1, seq('unmap', field('target', optional(choice(
+      seq('(', field('port_refs', $.port_ref), ',', field('port_refs', $.port_ref), ')', field('params', optional(seq('param', $.actual_parameters)))),
+      seq('(', field('port_refs', $.port_ref), ')', field('params', optional(seq('param', $.actual_parameters)))),
+      seq('(', field('component_ref', $._identifier), ':', 'all', 'port', ')'),
+      seq('(', 'all', 'component', ':', 'all', 'port', ')'),
+      seq('(', field('value_ref', $._identifier), ',', field('expr', $._expression), ')'),
+    ))))),
     goto_stmt: $ => seq('goto', $.name),
     break_stmt: $ => seq('break', optional($.name)),
     continue_stmt: $ => seq('continue', optional($.name)),

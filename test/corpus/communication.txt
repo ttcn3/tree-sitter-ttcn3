@@ -522,3 +522,148 @@ module M {
           (reference)
           (primary
             (number)))))))
+
+===
+Connect - basic PortRef
+===
+module M {
+  function f() {
+    connect(p_Nr:NASCTRL, v_NASEMU_NRNG_PTC:CTRL)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (connect_stmt
+          (port_ref)
+          (port_ref))))))
+
+===
+Connect - with system component ref
+===
+module M {
+  function f() {
+    connect(system:NASCTRL, mtc:CTRL)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (connect_stmt
+          (port_ref)
+          (port_ref))))))
+
+===
+Map - basic with optional param
+===
+module M {
+  function f() {
+    map(p_Nr:NASCTRL, v_NASEMU_NRNG_PTC:CTRL)
+    map(p_Nr:NASCTRL, v_NASEMU_NRNG_PTC:CTRL) param (p_Param)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (map_stmt
+          (port_ref)
+          (port_ref))
+        (map_stmt
+          (port_ref)
+          (port_ref)
+          (actual_parameters
+            (actual_parameter
+              (primary
+                (reference)))))))))
+
+===
+Disconnect - all forms
+===
+module M {
+  function f() {
+    disconnect
+    disconnect(p_Nr:NASCTRL)
+    disconnect(p_Nr:NASCTRL, v_PTC:CTRL)
+    disconnect(p_Nr : all port)
+    disconnect(all component : all port)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (disconnect_stmt)
+        (disconnect_stmt
+          (port_ref))
+        (disconnect_stmt
+          (port_ref)
+          (port_ref))
+        (disconnect_stmt)
+        (disconnect_stmt)))))
+
+===
+Unmap - all forms
+===
+module M {
+  function f() {
+    unmap(p_Nr:NASCTRL, v_PTC:CTRL)
+    unmap(p_Nr:NASCTRL, v_PTC:CTRL) param (p_Param)
+    unmap(p_Nr:NASCTRL) param (p_Param)
+    unmap(p_Nr : all port)
+    unmap(all component : all port)
+    unmap(p_Value, 5)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (unmap_stmt
+          (port_ref)
+          (port_ref))
+        (unmap_stmt
+          (port_ref)
+          (port_ref)
+          (actual_parameters
+            (actual_parameter
+              (primary
+                (reference)))))
+        (unmap_stmt
+          (port_ref)
+          (actual_parameters
+            (actual_parameter
+              (primary
+                (reference)))))
+        (unmap_stmt)
+        (unmap_stmt)
+        (unmap_stmt
+          (primary
+            (number)))))))
