@@ -90,3 +90,52 @@ module M {
         (name)
         (primary
           (number))))))
+
+===
+Empty octet/hex/bitstring literals
+===
+module M {
+  function f() {
+    var octetstring a := ''O;
+    var hexstring b := ''H;
+    var bitstring c := ''B;
+    var octetstring d := 'A1B2'O;
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (octetstring))))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (hexstring))))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (bitstring))))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (octetstring))))))))

@@ -635,6 +635,11 @@ module.exports = grammar({
       field('operator', choice('<', '>', '<=', '>=')),
       field('right', $._expression),
     )),
+    equal_expression: $ => prec.left(PREC.equality, seq(
+      field('left', $._expression),
+      field('operator', choice('==', '!=', '<>')),
+      field('right', $._expression),
+    )),
 
     shift_expression: $ => prec.left(PREC.shift, seq(
       field('left', $._expression),
@@ -1596,9 +1601,9 @@ module.exports = grammar({
 
     boolean_literal: _ => choice('true', 'false'),
     verdict_literal: _ => choice('none', 'pass', 'inconc', 'fail', 'error'),
-    bitstring: $ => /'([01*? ])+'(b|B)/,
-    hexstring: $ => /'([0-9A-Fa-f*? ])+'(h|H)/,
-    octetstring: $ => /'([0-9A-Fa-f*? ])+'(o|O)/,
+    bitstring: $ => /'([01*? ])*'(b|B)/,
+    hexstring: $ => /'([0-9A-Fa-f*? ])*'(h|H)/,
+    octetstring: $ => /'([0-9A-Fa-f*? ])*'(o|O)/,
     malformed_string: $ => /'[^']+'[a-zA-Z_]*/,
 
     number: _ => token(seq(/\d[\d_]*(\.\d[\d_]*)?/, optional(/[eE][+-]?\d[\d_]*/),)),
