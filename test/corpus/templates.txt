@@ -597,11 +597,12 @@ template integer Ranged := (1 .. 10);
     (name)
     (name)
     (primary
-      (range
-        (primary
-          (number))
-        (primary
-          (number))))))
+      (parenthesized_expression
+        (range_expression
+          (primary
+            (number))
+          (primary
+            (number)))))))
 
 ===
 Template with complement body
