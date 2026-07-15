@@ -282,3 +282,49 @@ module M {
           (assignment
             (reference))
           (block))))))
+
+===
+Select case with multiple templates per clause
+===
+module M {
+  function f(x integer) {
+    select (x) {
+      case (1, 2) {}
+      case (3, 4,) {}
+      case else {}
+    }
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (block
+        (select_stmt
+          (primary
+            (reference))
+          (select_clause
+            (select_case_clause
+              (primary
+                (number))
+              (primary
+                (number))
+              (block)))
+          (select_clause
+            (select_case_clause
+              (primary
+                (number))
+              (primary
+                (number))
+              (block)))
+          (select_clause
+            (select_else_clause
+              (block))))))))

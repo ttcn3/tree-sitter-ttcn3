@@ -93,6 +93,9 @@ module.exports = grammar({
     // the call or start of the optional timer/duration clauses. Tree-sitter
     // can't decide on linear lookahead; GLR tries both.
     [$.execute_stmt],
+    // V1.1: `case (a, b) {...}` — multiple case-label expressions (spec Annex A
+    // rule 590) overlap with optional trailing `;` between select clauses. GLR.
+    [$.select_case_clause],
     // TP3.9: 'pattern "X"' — the same shape appears in both the
     // subtype-constraint form `(pattern "X")` and the template-body matching
     // form `pattern "X"` (used inside template bodies). Distinguishable only
@@ -1276,7 +1279,9 @@ module.exports = grammar({
       field('init', optional(seq($._init_stmt, ';'))),
       field('expression', $._expression),
       ')',
+      '{',
       field('clauses', repeat1($.select_clause)),
+      '}',
     ),
 
     select_union_stmt: $ => seq(
@@ -1284,7 +1289,9 @@ module.exports = grammar({
       field('init', optional(seq($._init_stmt, ';'))),
       field('expression', $._expression),
       ')',
+      '{',
       field('clauses', repeat1($.select_clause)),
+      '}',
     ),
 
     select_class_stmt: $ => seq(
@@ -1292,7 +1299,9 @@ module.exports = grammar({
       field('init', optional(seq($._init_stmt, ';'))),
       field('expression', $._expression),
       ')',
+      '{',
       field('clauses', repeat1($.select_clause)),
+      '}',
     ),
 
     select_type_stmt: $ => seq(
@@ -1300,7 +1309,9 @@ module.exports = grammar({
       field('init', optional(seq($._init_stmt, ';'))),
       field('expression', $._expression),
       ')',
+      '{',
       field('clauses', repeat1($.select_clause)),
+      '}',
     ),
 
     select_clause: $ => choice(
@@ -1310,7 +1321,8 @@ module.exports = grammar({
 
     select_case_clause: $ => seq(
       'case', '(',
-      field('expression', $._expression),
+      field('expressions', sepBy1(',', $._expression)),
+      optional(','),
       ')',
       field('body', $.block),
     ),
