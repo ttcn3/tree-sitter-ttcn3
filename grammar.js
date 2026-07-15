@@ -503,7 +503,7 @@ module.exports = grammar({
       ),
     ),
 
-    _expression: $ => choice(
+_expression: $ => choice(
       $.unary_expression,
       $.binary_expression,
       'null',
@@ -519,6 +519,7 @@ module.exports = grammar({
       $.octetstring,
       $.template_values,
       $.composite_literal,
+      $.compound_value,
       $.function_literal,
       $.inline_template,
       alias('testcase', $._identifier),
@@ -529,6 +530,34 @@ module.exports = grammar({
       $.predefined_func_call,
       $.reference,
     ),
+
+    // ConstantExpression (Annex A.534): a stricter form of Expression
+    // used in type lists, enum values, modulepars, and other contexts
+    // where function calls and mutable variable references are forbidden.
+    // The grammar can't enforce this; it produces a distinct AST node so
+    // downstream tools can.
+    constant_expression: $ => choice(
+      $.unary_expression,
+      'null',
+      'omit',
+      $.boolean_literal,
+      $.verdict_literal,
+      $.number,
+      $.reserved_number,
+      $.charstring,
+      $.bitstring,
+      $.hexstring,
+      $.octetstring,
+      $.composite_literal,
+      seq('(', $.constant_expression, ')'),
+      alias('testcase', $._identifier),
+      $.constant_reference,
+    ),
+
+    // Reference to a constant. A grammar-level stand-in for "identifier
+    // that resolves to a const declaration"; the actual distinction is
+    // semantic.
+    constant_reference: $ => $._identifier,
 
     parenthesized_expression: $ => seq('(', $._expression, ')'),
 
@@ -611,6 +640,14 @@ module.exports = grammar({
 
     composite_literal: $ => seq(
       '{', sepBy1(',', $._expression), '}',
+    ),
+
+    // Compound value (Annex B / A.527): assignment notation `{ field := expr, … }`.
+    // Distinct from composite_literal (the list notation `{ expr, … }`).
+    compound_value: $ => seq(
+      '{',
+      sepBy1(',', seq(field('field', $.name), ':=', field('value', $._expression))),
+      '}',
     ),
 
     function_literal: $ => seq(
@@ -709,9 +746,9 @@ module.exports = grammar({
       'hex2int', 'hex2oct', 'hex2bit', 'hex2str',
       'unichar2int', 'unichar2oct', 'oct2unichar',
       'lengthof', 'sizeof', 'ispresent', 'isbound', 'isvalue', 'ischosen',
-      'match', 'valueof', 'decmatch', 'decvalue', 'encvalue',
+      'match', 'valueof', 'decmatch', 'decvalue', 'encvalue', 'present',
       'replace', 'substr', 'regexp', 'str2int', 'float2int', 'int2float',
-      'isvalue', 'testcasename', 'hostid', 'get_stringencoding',
+      'testcasename', 'hostid', 'get_stringencoding',
     ),
 
     redirection_expr: $ => seq(
