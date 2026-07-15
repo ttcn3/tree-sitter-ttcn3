@@ -79,6 +79,16 @@ module.exports = grammar({
     // tail could be a `reference` (via alias), a `stop_tc_stmt` body, or a
     // `kill_tc_stmt` body. Same syntactic shape, different semantics.
     [$.reference, $.stop_tc_stmt, $.kill_tc_stmt],
+    // S2.8: `port.start` (S2.4) vs `timer.start(duration)` (S2.8).
+    // Syntactically identical up to the next ';' / '('.
+    [$.port_start_stmt, $.start_timer_stmt],
+    // S2.8: 3-way `*.stop` — port, component-tc, and timer all have identical
+    // shape `reference '.' 'stop'`. Distinguishable only by semantic context.
+    [$.port_stop_stmt, $.stop_tc_stmt, $.stop_timer_stmt],
+    // S2.8: `comp.running` (S2.6) vs `timer.running` (S2.8). Same syntactic shape.
+    [$.running_stmt, $.running_timer_stmt],
+    // S2.8: `comp.start(fn)` (S2.6) vs `timer.start(duration)` (S2.8). Both `ref.start(arg)`.
+    [$.start_tc_stmt, $.start_timer_stmt],
 
     // Pre-existing conflicts: a `timer` or `port` declaration inside a
     // `control { }` block parses ambiguously as either another declaration
@@ -927,6 +937,11 @@ module.exports = grammar({
       $.activate_stmt,
       $.deactivate_stmt,
       $.repeat_stmt,
+      $.start_timer_stmt,
+      $.stop_timer_stmt,
+      $.read_timer_stmt,
+      $.running_timer_stmt,
+      $.timeout_timer_stmt,
       $.reference,
       $.redirection_expr,
       $.assignment,
@@ -1129,6 +1144,27 @@ module.exports = grammar({
     deactivate_stmt: $ => seq('deactivate', field('ref', optional(seq('(', $.reference, ')')))),
     // S2.7: spec rule 519 RepeatStatement = "repeat"
     repeat_stmt: $ => 'repeat',
+    // S2.8: spec rule 397 StartTimerStatement = ObjectReference "." "start" ["(" Expression ")"]
+    start_timer_stmt: $ => prec(1, seq(
+      field('timer', $.reference), '.', 'start',
+      field('duration', optional(seq('(', $._expression, ')'))),
+    )),
+    // S2.8: spec rule 398 StopTimerStatement = TimerRefOrAll "." "stop"
+    stop_timer_stmt: $ => prec(1, seq(
+      field('timer', choice($.reference, seq('all', 'timer'))), '.', 'stop',
+    )),
+    // S2.8: spec rule 400 ReadTimerOp = ObjectReference "." "read"
+    read_timer_stmt: $ => prec(1, seq(field('timer', $.reference), '.', 'read')),
+    // S2.8: spec rule 402 RunningTimerOp = TimerRefOrAny "." "running" [IndexAssignment]
+    running_timer_stmt: $ => prec(1, seq(
+      field('timer', choice($.reference, seq('any', 'timer'), seq('any', 'from', $._identifier))),
+      '.', 'running', field('redirect', optional($.port_redirect)),
+    )),
+    // S2.8: spec rule 403 TimeoutStatement = TimerRefOrAny "." "timeout" [IndexAssignment]
+    timeout_timer_stmt: $ => prec(1, seq(
+      field('timer', choice($.reference, seq('any', 'timer'), seq('any', 'from', $._identifier))),
+      '.', 'timeout', field('redirect', optional($.port_redirect)),
+    )),
     goto_stmt: $ => seq('goto', $.name),
     break_stmt: $ => seq('break', optional($.name)),
     continue_stmt: $ => seq('continue', optional($.name)),

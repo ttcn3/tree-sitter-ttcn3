@@ -922,4 +922,67 @@ module M {
         (block
           (repeat_stmt))))))
 
+===
+Timer - basic operations
+===
+module M {
+  function f() {
+    t_Watchdog.start
+    t_Watchdog.start(2.0)
+    t_Watchdog.stop
+    all timer.stop
+    t_Watchdog.read
+    t_Watchdog.running
+    t_Watchdog.timeout
+  }
+}
+---
 
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (port_start_stmt
+          (reference))
+        (start_tc_stmt
+          (reference)
+          (primary
+            (number)))
+        (port_stop_stmt
+          (reference))
+        (stop_timer_stmt)
+        (read_timer_stmt
+          (reference))
+        (running_stmt
+          (reference))
+        (timeout_timer_stmt
+          (reference))))))
+
+===
+Timer - any timer forms
+===
+module M {
+  function f() {
+    any timer.running
+    any timer.timeout
+    any from t_Watchdog.running
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (running_timer_stmt)
+        (timeout_timer_stmt)
+        (running_stmt
+          (reference
+            (function_call_expression
+              (reference))))))))
