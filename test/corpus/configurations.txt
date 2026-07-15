@@ -5,3 +5,13 @@ Configuration
 friend configuration C() runs on C system C {} with {}
 
 ---
+
+(source_file
+  (configuration
+    (visibility)
+    (name)
+    (parameters)
+    (reference)
+    (reference)
+    (block)
+    (attributes)))

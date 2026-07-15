@@ -3,3 +3,13 @@ Simple
 ===
 public type component C extends D,E {} with {}
 ---
+
+(source_file
+  (component_type
+    (visibility)
+    (name)
+    (references
+      (reference)
+      (reference))
+    (block)
+    (attributes)))
