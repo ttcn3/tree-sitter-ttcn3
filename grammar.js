@@ -623,6 +623,7 @@ module.exports = grammar({
       $.template_values,
       $.composite_literal,
       $.compound_value,
+      $.array_value,
       $.function_literal,
       $.inline_template,
       alias('testcase', $._identifier),
@@ -686,6 +687,12 @@ module.exports = grammar({
       '{',
       sepBy1(',', seq(field('field', $.name), ':=', field('value', $._expression))),
       '}',
+    ),
+
+    // Array value (spec A.526): list notation `[ expr, … ]` for record-of/set-of template bodies.
+    // Distinct from `array_def` (single-dim `[ expr ]` for type definitions).
+    array_value: $ => seq(
+      '[', sepBy1(',', $._expression), ']',
     ),
 
     function_literal: $ => seq(

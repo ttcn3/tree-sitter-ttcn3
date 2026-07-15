@@ -474,3 +474,60 @@ template t := 5;
     (name)
     (primary
       (number))))
+
+===
+Template with array value body
+===
+template integer MyArr := [ 1, 2, 3 ];
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (array_value
+        (primary
+          (number))
+        (primary
+          (number))
+        (primary
+          (number))))))
+
+===
+Template with compound value body (field assignments)
+===
+template MyRec MyRec_t := { field1 := 1, field2 := "hello" };
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (number))
+        (name)
+        (primary
+          (charstring))))))
+
+===
+Template with composite literal body (list notation)
+===
+template integer MySet := { 1, 2, 3 };
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (composite_literal
+        (primary
+          (number))
+        (primary
+          (number))
+        (primary
+          (number))))))
