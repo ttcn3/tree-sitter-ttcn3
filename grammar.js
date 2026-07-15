@@ -464,6 +464,7 @@ module.exports = grammar({
       'import',
       'from',
       field('module_id', $.reference),
+      field('language_spec', optional($.language_spec)),
       field('local_name', optional(seq('->', $.name))),
       field('body', $._import_body),
       field('attributes', optional($.attributes)),

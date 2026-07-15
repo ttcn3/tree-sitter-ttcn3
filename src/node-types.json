@@ -4102,6 +4102,16 @@
           }
         ]
       },
+      "language_spec": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "language_spec",
+            "named": true
+          }
+        ]
+      },
       "local_name": {
         "multiple": true,
         "required": false,

@@ -3935,6 +3935,22 @@
         },
         {
           "type": "FIELD",
+          "name": "language_spec",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "language_spec"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
           "name": "local_name",
           "content": {
             "type": "CHOICE",
