@@ -531,3 +531,74 @@ template integer MySet := { 1, 2, 3 };
           (number))
         (primary
           (number))))))
+
+===
+Template with ? (any value) body
+===
+template integer AnyVal := ?;
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (any_value))))
+
+===
+Template with * (wildcard) body
+===
+template MyRec WildcardT := *;
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (wildcard))))
+
+===
+Template with ifpresent body
+===
+template MyRec IfPresentT := ifpresent;
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (ifpresent))))
+
+===
+Template with length attribute body
+===
+template MyRec LengthT := length(2);
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (length_attribute
+        (primary
+          (number))))))
+
+===
+Template with range body
+===
+template integer Ranged := (1 .. 10);
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (range
+        (primary
+          (number))
+        (primary
+          (number))))))

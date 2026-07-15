@@ -624,6 +624,11 @@ module.exports = grammar({
       $.composite_literal,
       $.compound_value,
       $.array_value,
+      $.any_value,
+      $.wildcard,
+      $.ifpresent,
+      $.length_attribute,
+      $.range,
       $.function_literal,
       $.inline_template,
       alias('testcase', $._identifier),
@@ -694,6 +699,14 @@ module.exports = grammar({
     array_value: $ => seq(
       '[', sepBy1(',', $._expression), ']',
     ),
+
+    // Matching symbols (spec §15.7 / B.1). `*` conflicts with the multiply operator — precedence resolves it.
+    any_value: _ => '?',
+    wildcard: _ => '*',
+    ifpresent: _ => 'ifpresent',
+    length_attribute: $ => seq('length', '(', $._expression, ')'),
+    // Range: `( expr .. expr )` — spec B.1.1. May conflict with template_values; GLR resolves.
+    range: $ => seq('(', $._expression, '..', $._expression, ')'),
 
     function_literal: $ => seq(
       'function',
