@@ -79,3 +79,29 @@ module M {
           (nested_type
             (reference))))
       (name))))
+
+===
+Import - group recursive except
+===
+module M {
+  import from Mod {
+    group G;
+    group H except { type X; type Y; };
+    type T1;
+  };
+}
+---
+
+(source_file
+  (module
+    (name)
+    (import_definition
+      (reference)
+      (reference)
+      (reference)
+      (references
+        (reference))
+      (references
+        (reference))
+      (references
+        (reference)))))
