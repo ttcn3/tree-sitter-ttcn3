@@ -250,3 +250,128 @@ function f(template (value) integer p_x, integer p_y, template (omit) charstring
           (reference))
         (name)))
     (block)))
+
+===
+Template with @fuzzy modifier
+===
+template @fuzzy integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (reference)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with @deterministic modifier
+===
+template @deterministic integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (reference)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with @abstract modifier
+===
+template @abstract integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (reference)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with @fuzzy @deterministic modifiers
+===
+template @fuzzy @deterministic integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (reference)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with all three modifiers
+===
+template @fuzzy @deterministic @abstract integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (reference)
+    (name)
+    (primary
+      (number))))
+
+===
+Function with @fuzzy modifier
+===
+function @fuzzy f() {}
+---
+
+(source_file
+  (func
+    (template_modifier)
+    (name)
+    (parameters)
+    (block)))
+
+===
+Function with @deterministic modifier
+===
+function @deterministic f() {}
+---
+
+(source_file
+  (func
+    (template_modifier)
+    (name)
+    (parameters)
+    (block)))
+
+===
+Template with @fuzzy @abstract (skip @deterministic)
+===
+template @fuzzy @abstract integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (reference)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with wrong-order modifiers: error
+===
+template @deterministic @fuzzy integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (ERROR)
+    (reference)
+    (name)
+    (primary
+      (number))))

@@ -142,15 +142,13 @@ module.exports = grammar({
     func: $ => seq(
       field('visibility', optional($.visibility)),
       'function',
-      field('modifiers', optional($.modifiers)),
+      field('modifiers', optional($.template_modifier)),
       $._parameterized_name,
       field('parameters', $.parameters),
       field('extends', optional(seq('extends', $.reference))),
       field('runs_on', optional(seq('runs', 'on', $.reference))),
-      field('mtc', optional(seq('mtc', $.reference))),
       field('system', optional(seq('system', $.reference))),
       field('return_type', optional($.return_type)),
-      field('exception', optional(seq('exception', '(', $.references, ')'))),
       field('body', optional($.block)),
       field('attributes', optional($.attributes)),
     ),
@@ -395,7 +393,7 @@ module.exports = grammar({
       field('visibility', optional($.visibility)),
       'template',
       field('restriction', optional(seq('(', $.template_restriction, ')'))),
-      field('modifiers', optional($.modifiers)),
+      field('modifiers', optional($.template_modifier)),
       $.reference,
       $._parameterized_name,
       field('parameters', optional($.parameters)),
@@ -1156,6 +1154,19 @@ module.exports = grammar({
     template_restriction: _ => choice("omit", "value", "present"),
 
     modifiers: $ => repeat1($.modifier),
+
+    // Template/function modifier chain per spec §15: [ @fuzzy ] [ @deterministic ] [ @abstract ] in order.
+    // Kept as a choice (not a seq of optionals) because tree-sitter rejects rules that match the empty string.
+    // Generic `modifiers` is kept for other contexts where order doesn't matter.
+    template_modifier: _ => choice(
+      '@fuzzy',
+      '@deterministic',
+      '@abstract',
+      seq('@fuzzy', '@deterministic'),
+      seq('@fuzzy', '@abstract'),
+      seq('@deterministic', '@abstract'),
+      seq('@fuzzy', '@deterministic', '@abstract'),
+    ),
 
     name: $ => $._identifier,
 
