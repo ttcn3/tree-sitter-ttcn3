@@ -1,4 +1,4 @@
-from os.path import isdir, join
+from os.path import isdir, isfile, join
 from platform import system
 
 from setuptools import Extension, find_packages, setup
@@ -8,6 +8,19 @@ from wheel.bdist_wheel import bdist_wheel
 
 class Build(build):
     def run(self):
+        # Regenerate src/parser.c if it is missing. The parser source is
+        # not checked in, so sdist installs need it produced on demand.
+        # Requires `tree-sitter` (the CLI) on PATH.
+        if not isfile(join("src", "parser.c")):
+            import subprocess
+            try:
+                subprocess.check_call(["tree-sitter", "generate"])
+            except FileNotFoundError:
+                raise RuntimeError(
+                    "src/parser.c is missing and the `tree-sitter` CLI is not "
+                    "available. Install it with `pip install tree-sitter` or "
+                    "`npm install -g tree-sitter-cli`."
+                )
         if isdir("queries"):
             dest = join(self.build_lib, "tree_sitter_ttcn3", "queries")
             self.copy_tree("queries", dest)
