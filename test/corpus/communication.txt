@@ -1,0 +1,524 @@
+===
+Port send - basic
+===
+module M {
+  function f() {
+    DRB.send(car_NR_Something(nr_Cell1, p_Id))
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (send_stmt
+          (reference)
+          (actual_parameters
+            (actual_parameter
+              (primary
+                (reference
+                  (function_call_expression
+                    (reference)
+                    (actual_parameters
+                      (actual_parameter
+                        (primary
+                          (reference)))
+                      (actual_parameter
+                        (primary
+                          (reference))))))))))))))
+
+===
+Port send - with to clause (component ref)
+===
+module M {
+  function f() {
+    DRB.send(car_NR_X) to COMP
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (send_stmt
+          (reference)
+          (actual_parameters
+            (actual_parameter
+              (primary
+                (reference))))
+          (to_clause
+            (primary
+              (reference))))))))
+
+===
+Port send - with to clause (all component)
+===
+module M {
+  function f() {
+    DRB.send(car_NR_X) to all component
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (send_stmt
+          (reference)
+          (actual_parameters
+            (actual_parameter
+              (primary
+                (reference))))
+          (to_clause))))))
+
+===
+Port receive - bare (any message)
+===
+module M {
+  function f() {
+    p.receive
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (receive_stmt
+          (reference))))))
+
+===
+Port receive - with template
+===
+module M {
+  function f() {
+    p.receive(car_NR_SYSTEM_IND(nr_Cell1, ack))
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (receive_stmt
+          (reference)
+          (primary
+            (reference
+              (function_call_expression
+                (reference)
+                (actual_parameters
+                  (actual_parameter
+                    (primary
+                      (reference)))
+                  (actual_parameter
+                    (primary
+                      (reference))))))))))))
+
+===
+Port receive - with redirect
+===
+module M {
+  function f() {
+    p.receive(car_X) -> value v_x
+    p.receive(car_X) -> sender v_from
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (receive_stmt
+          (reference)
+          (primary
+            (reference))
+          (port_redirect
+            (primary
+              (reference))))
+        (reference)
+        (receive_stmt
+          (reference)
+          (primary
+            (reference))
+          (port_redirect
+            (primary
+              (reference))))
+        (reference)))))
+
+===
+Port receive - with from clause
+===
+module M {
+  function f() {
+    p.receive(car_X) from COMP
+    p.receive(car_X) from any component
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (receive_stmt
+          (reference)
+          (primary
+            (reference))
+          (from_clause
+            (primary
+              (reference))))
+        (receive_stmt
+          (reference)
+          (primary
+            (reference))
+          (from_clause))))))
+
+===
+Port trigger - bare
+===
+module M {
+  function f() {
+    p.trigger
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (trigger_stmt
+          (reference))))))
+
+===
+Port trigger - with template
+===
+module M {
+  function f() {
+    p.trigger(car_NR_X) -> value v_x
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (trigger_stmt
+          (reference)
+          (primary
+            (reference))
+          (port_redirect
+            (primary
+              (reference))))
+        (reference)))))
+
+===
+Port getcall
+===
+module M {
+  function f() {
+    p.getcall(car_Sig)
+    p.getcall(car_Sig) -> value v_x
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (getcall_stmt
+          (reference)
+          (primary
+            (reference)))
+        (getcall_stmt
+          (reference)
+          (primary
+            (reference))
+          (port_redirect
+            (primary
+              (reference))))
+        (reference)))))
+
+===
+Port getreply
+===
+module M {
+  function f() {
+    p.getreply(car_Sig)
+    p.getreply(car_Sig) -> value v_x
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (getreply_stmt
+          (reference)
+          (primary
+            (reference)))
+        (getreply_stmt
+          (reference)
+          (primary
+            (reference))
+          (port_redirect
+            (primary
+              (reference))))
+        (reference)))))
+
+===
+Port catch - timeout
+===
+module M {
+  function f() {
+    p.catch(timeout)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (catch_stmt
+          (reference))))))
+
+===
+Port catch - signature with template
+===
+module M {
+  function f() {
+    p.catch(car_Sig, car_X)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (catch_stmt
+          (reference)
+          (primary
+            (reference))
+          (primary
+            (reference)))))))
+
+===
+Port check
+===
+module M {
+  function f() {
+    p.check(car_X)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (check_stmt
+          (reference)
+          (actual_parameters
+            (actual_parameter
+              (primary
+                (reference)))))))))
+
+===
+Port call - procedure call
+===
+module M {
+  function f() {
+    p.call(car_Sig, v_value)
+    p.call(car_Sig, v_value, 2.0)
+    p.call(car_Sig, v_value, nowait)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (call_stmt
+          (reference)
+          (primary
+            (reference))
+          (primary
+            (reference)))
+        (call_stmt
+          (reference)
+          (primary
+            (reference))
+          (primary
+            (reference))
+          (primary
+            (number)))
+        (call_stmt
+          (reference)
+          (primary
+            (reference))
+          (primary
+            (reference)))))))
+
+===
+Port reply - with template
+===
+module M {
+  function f() {
+    p.reply(car_Sig)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (reply_stmt
+          (reference)
+          (primary
+            (reference)))))))
+
+===
+Port raise
+===
+module M {
+  function f() {
+    p.raise(car_Sig, car_X)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (raise_stmt
+          (reference)
+          (primary
+            (reference))
+          (primary
+            (reference)))))))
+
+===
+Port clear / start / stop / halt - no args
+===
+module M {
+  function f() {
+    p.clear
+    p.start
+    p.stop
+    p.halt
+    all port.clear
+    all port.start
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (port_clear_stmt
+          (reference))
+        (port_start_stmt
+          (reference))
+        (port_stop_stmt
+          (reference))
+        (port_halt_stmt
+          (reference))
+        (port_clear_stmt
+          (reference
+            (_identifier)
+            (_identifier)))
+        (port_start_stmt
+          (reference
+            (_identifier)
+            (_identifier)))))))
+
+===
+Port checkstate - with state expr
+===
+module M {
+  function f() {
+    p.checkstate(1)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (checkstate_stmt
+          (reference)
+          (primary
+            (number)))))))

@@ -60,6 +60,16 @@ module.exports = grammar({
     // Conflicts with predefined_func_name (which also accepts 2-arg calls). GLR resolves.
     [$.decmatch, $.predefined_func_name],
 
+    // S2.4: `port.send(t) to all component` — the `to all component` tail
+    // could be either a `to_clause` ending the send_stmt, or a fresh
+    // `reference` (since `all component` is aliased as `_identifier`).
+    // GLR picks the to_clause interpretation.
+    [$.reference, $.to_clause],
+
+    // S2.4: same shape as to_clause — `port.receive(...) from any component`
+    // could be a `from_clause` or a fresh reference. GLR resolves.
+    [$.reference, $.from_clause],
+
     // Pre-existing conflicts: a `timer` or `port` declaration inside a
     // `control { }` block parses ambiguously as either another declaration
     // or as the continuation of the previous one (separated by `,`). GLR
@@ -877,6 +887,21 @@ module.exports = grammar({
 
     _statement: $ => choice(
       $.block,
+      $.send_stmt,
+      $.port_clear_stmt,
+      $.port_start_stmt,
+      $.port_stop_stmt,
+      $.port_halt_stmt,
+      $.checkstate_stmt,
+      $.receive_stmt,
+      $.trigger_stmt,
+      $.getcall_stmt,
+      $.getreply_stmt,
+      $.catch_stmt,
+      $.check_stmt,
+      $.call_stmt,
+      $.reply_stmt,
+      $.raise_stmt,
       $.reference,
       $.redirection_expr,
       $.assignment,
@@ -927,7 +952,100 @@ module.exports = grammar({
       seq(field('left', $.reference), '--'),
     )),
 
+    // S2.4: spec rule 313 SendStatement = ObjectReference Dot PortSendOp
+    // PortSendOp = SendOpKeyword "(" TemplateInstance ")" [ToClause]
+    send_stmt: $ => prec(1, seq(
+      field('port', $.reference),
+      '.',
+      field('op', 'send'),
+      field('arguments', $.actual_parameters),
+      field('to', optional($.to_clause)),
+    )),
     label_stmt: $ => seq('label', $.name),
+    // S2.4: spec rule 316 ToClause = "to" (TemplateInstance | AddressRefList | "all" "component")
+    to_clause: $ => seq('to', choice($._expression, seq('all', 'component'))),
+    // S2.4: spec rule 383 ClearStatement = PortOrAll Dot ClearOpKeyword
+    // S2.4: spec rule 386 StartStatement = PortOrAll Dot StartKeyword
+    // S2.4: spec rule 387 StopStatement = PortOrAll Dot StopKeyword
+    // S2.4: spec rule 389 HaltStatement = PortOrAll Dot HaltKeyword
+    // These no-arg ops conflict with reference (port.start is a valid selector_expression).
+    // prec(1) prefers the dedicated AST node.
+    port_clear_stmt: $ => prec(1, seq(field('port', $.reference), '.', 'clear')),
+    port_start_stmt: $ => prec(1, seq(field('port', $.reference), '.', 'start')),
+    port_stop_stmt: $ => prec(1, seq(field('port', $.reference), '.', 'stop')),
+    port_halt_stmt: $ => prec(1, seq(field('port', $.reference), '.', 'halt')),
+    // S2.4: spec rule 392 CheckStateStatement = PortOrAllAny Dot CheckStateKeyword "(" SingleExpression ")"
+    checkstate_stmt: $ => prec(1, seq(field('port', $.reference), '.', 'checkstate', '(', field('state', $._expression), ')')),
+    // S2.4: spec rule 340 PortReceiveOp = ReceiveOpKeyword ["("TemplateInstance")"] [FromClause] [PortRedirect]
+    // S2.4: spec rule 339 PortOrAny = ObjectReference | (AnyKeyword (PortKeyword | FromKeyword ValueRef))
+    from_clause: $ => seq('from', choice($._expression, seq('any', 'component'))),
+    port_redirect: $ => seq('->', field('target', $._expression)),
+    receive_stmt: $ => prec(1, seq(
+      field('port', $.reference),
+      '.',
+      field('op', 'receive'),
+      field('template', optional(seq('(', $._expression, ')'))),
+      field('from', optional($.from_clause)),
+      field('redirect', optional($.port_redirect)),
+    )),
+    // S2.4: spec rule 351-370: trigger, getcall, getreply, catch all share
+    // the same shape as receive (optional template, optional from, optional redirect).
+    // Common TTCN-3 pattern - one rule suffices for the AST.
+    trigger_stmt: $ => prec(1, seq(
+      field('port', $.reference), '.', 'trigger',
+      field('template', optional(seq('(', $._expression, ')'))),
+      field('from', optional($.from_clause)),
+      field('redirect', optional($.port_redirect)),
+    )),
+    getcall_stmt: $ => prec(1, seq(
+      field('port', $.reference), '.', 'getcall',
+      field('template', optional(seq('(', $._expression, ')'))),
+      field('from', optional($.from_clause)),
+      field('redirect', optional($.port_redirect)),
+    )),
+    getreply_stmt: $ => prec(1, seq(
+      field('port', $.reference), '.', 'getreply',
+      field('template', optional(seq('(', $._expression, ')'))),
+      field('from', optional($.from_clause)),
+      field('redirect', optional($.port_redirect)),
+    )),
+    catch_stmt: $ => prec(1, seq(
+      field('port', $.reference), '.', 'catch',
+      field('args', optional(seq('(', choice(
+        seq(field('sig', $._expression), ',', field('template', $._expression)),
+        field('sig', $._expression),
+        'timeout',
+      ), ')'))),
+      field('from', optional($.from_clause)),
+      field('redirect', optional($.port_redirect)),
+    )),
+    // S2.4: spec rule 372 CheckStatement = PortOrAny Dot PortCheckOp
+    // PortCheckOp = CheckOpKeyword ["(" CheckParameter ")"]
+    check_stmt: $ => prec(1, seq(field('port', $.reference), '.', 'check', field('args', optional($.actual_parameters)))),
+    // S2.4: spec rule 319 CallStatement = ObjectReference Dot PortCallOp [PortCallBody]
+    // PortCallOp = CallOpKeyword "(" CallParameters ")" [ToClause]
+    // CallParameters = TemplateInstance ["," CallTimerValue] [","]
+    // CallTimerValue = Expression | "nowait"
+    call_stmt: $ => prec(1, seq(
+      field('port', $.reference), '.', 'call', '(',
+      field('sig', $._expression), ',', field('value', $._expression),
+      field('timer', optional(seq(',', choice($._expression, 'nowait')))),
+      ')',
+      field('to', optional($.to_clause)),
+    )),
+    // S2.4: spec rule 330 ReplyStatement = ObjectReference Dot PortReplyOp
+    // PortReplyOp = ReplyKeyword "(" TemplateInstance [ReplyValue] ")" [ToClause]
+    reply_stmt: $ => prec(1, seq(
+      field('port', $.reference), '.', 'reply', '(', field('template', $._expression), ')',
+      field('to', optional($.to_clause)),
+    )),
+    // S2.4: spec rule 334 RaiseStatement = ObjectReference Dot PortRaiseOp
+    // PortRaiseOp = RaiseKeyword "(" Signature "," TemplateInstance ")" [ToClause]
+    raise_stmt: $ => prec(1, seq(
+      field('port', $.reference), '.', 'raise', '(',
+      field('sig', $._expression), ',', field('template', $._expression), ')',
+      field('to', optional($.to_clause)),
+    )),
     goto_stmt: $ => seq('goto', $.name),
     break_stmt: $ => seq('break', optional($.name)),
     continue_stmt: $ => seq('continue', optional($.name)),
