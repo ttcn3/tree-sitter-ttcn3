@@ -4,7 +4,7 @@
 
 This plan completes the tree-sitter TTCN-3 grammar from its current WIP state to a grammar that parses real-world 3GPP conformance TTCN code. See [`gap-analysis.md`](./gap-analysis.md) for the underlying inventory.
 
-> **Branch status (2026-07-15):** Quick Wins 2 of 5 done (QW1 partial, QW4 partial, QW5 done); Phase 0 expressions ~6 of 9 tasks done (E0.2, E0.3, E0.4, E0.6, E0.8, E0.9 landed; E0.1 precedence chain, E0.5 `Minus` placeholder, E0.7 `-infinity` still open); 1 corpus test failing (`Invalid number` in `literals.txt`). See inline status notes per task.
+> **Branch status (2026-07-15):** Quick Wins 3 of 5 done (QW1 done, QW3 **blocked — needs redesign**, QW4 done, QW5 done); Phase 0 expressions ~6 of 9 tasks done (E0.2, E0.3, E0.4, E0.6, E0.8, E0.9 landed; E0.1 precedence chain, E0.5 `Minus` placeholder still open; E0.7 `-infinity` now closed via QW1). 0 corpus tests failing (34/34 pass). See inline status notes per task.
 
 ---
 
@@ -12,10 +12,10 @@ This plan completes the tree-sitter TTCN-3 grammar from its current WIP state to
 
 Land these as standalone PRs before the big phases to fix the most-cited real-world failures:
 
-1. **Add `infinity`, `-infinity`, `not_a_number` keywords** — fixes the `HTTP_ASP_TypeDefs.ttcn` failure. **Status:** `infinity` and `not_a_number` added (`grammar.js` line 1136 `reserved_number`); **`-infinity` still missing** (spec C.1.9 line 24943 confirms `-infinity` is a valid float value distinct from `infinity`). Recommended: extend `reserved_number` to allow a leading `-` in expression contexts, or rely on the existing unary `-` operator on the `infinity` token and verify on real-world files.
+1. **Add `infinity`, `-infinity`, `not_a_number` keywords** — fixes the `HTTP_ASP_TypeDefs.ttcn` failure. **Status:** ✅ **done** — `infinity` and `not_a_number` were already in `reserved_number` (grammar.js line 1136); `-infinity` parses correctly via the existing `unary_expression` rule (operator `-` applied to the `infinity` `reserved_number` token), producing `(unary_expression operand: (reserved_number))`. Verified on a test snippet and locked in by two new corpus tests in `test/corpus/literals.txt` (`Infinity` and `Negative infinity`). Real-world 3GPP corpus scan: every occurrence is `infinity` (positive) — no `-infinity` found in the current snapshot, so the unary-minus approach is sufficient.
 2. **Add `+` / `-` literals and `omit` to the numeric-token set** — narrowly scoped to the literal/reserved-token layer (the recent `compound_value`, `predefined_func_call`, `presence_check`, `decoded_field_reference`, `ConstantExpression`, template-op commits belong to Phase 0, not here). **Status:** the literal-token work is done; the broader expression work it triggered is tracked under Phase 0 below.
-3. **Fix `inline_template` rule** — make it `optional(seq($.reference, ':')) $._expression` — unblocks one class of testcases (`NR_RRC_Templates.ttcn` parameterized templates). **Status:** still on the original `seq($.reference, ':', $._expression)` (grammar.js line 665).
-4. **Fix the 3 known-failing corpus tests** (`class_type`, `component_type`, `configuration` produce wrong modifiers/visibility) — also tracked here as the canonical Phase 5 cleanup item (P5.1 was removed to avoid duplication; this is the same task, scoped to "make the parser emit the spec-correct modifiers/visibility ordering"). **Status:** expected S-expression outputs were added (commit `564c404`) but `tree-sitter test` still reports them failing — needs grammar-side fix.
+3. **Fix `inline_template` rule** — make it `optional(seq($.reference, ':')) $._expression` — unblocks one class of testcases (`NR_RRC_Templates.ttcn` parameterized templates). **Status:** 🛑 **blocked — recommended fix does not work as written.** Attempted on 2026-07-15: changing the rule creates cascading unresolved GLR conflicts. First, a top-level conflict between `source_file → _expression` and `source_file → inline_template → _expression`. Second, in every multi-element `template_values` (parameter list) context: `'(', _expression, ','` ambiguates between `parenthesized_expression`, `template_values` with a bare expr, and `template_values` wrapping `inline_template(expr)`. Adding `prec.dynamic(-1, ...)` to `inline_template` does **not** resolve these — tree-sitter's static conflict analysis still flags them. **Reverted; grammar is back to the original `seq($.reference, ':', $._expression)`.** Needs a different design: either (a) introduce a separate `template_value` rule for the bare form, used only inside `template_values`; or (b) split `inline_template` into two rules with disjoint contexts. Reopen when the real-world failure case (parameterized template body) is reproduced.
+4. **Fix the 3 known-failing corpus tests** (`class_type`, `component_type`, `configuration` produce wrong modifiers/visibility) — also tracked here as the canonical Phase 5 cleanup item (P5.1 was removed to avoid duplication; this is the same task, scoped to "make the parser emit the spec-correct modifiers/visibility ordering"). **Status:** ✅ **done** — the expected S-expressions committed in `564c404` now match the parser output. All 3 tests pass (verified `tree-sitter test`: 34/34 pass, 0 failures). No grammar change was needed; the plan's "grammar-side fix" claim was stale.
 5. **Wire `import ... language "..."` clause** — allows `import from X language "ASN.1:2002" all with {encode "..."}` to parse cleanly. **Status:** done (commit `12538b1`); `language_spec` is wired into `import_definition`.
 
 ---
@@ -32,7 +32,7 @@ Land these as standalone PRs before the big phases to fix the most-cited real-wo
 | **E0.4** | Add **compound expressions**: assignment notation `{ field := expr, … }` and list notation `{ expr, … }` — these are also `Primary`. | 1 day | ✅ done (commit `df061db`: `compound_value`) |
 | **E0.5** | Add `Minus` (`-`) placeholder for uninitialized fields. | 0.5 day | ⬜ open |
 | **E0.6** | Add **decoded field reference** `=> Type`. | 0.5 day | ✅ done (commit `c788c4a`: `decoded_field_reference`) |
-| **E0.7** | Add `infinity`, `-infinity`, `not_a_number` reserved words to identifiers/keywords; ensure they aren't matched as `Identifier` in expression contexts. | 0.5 day | 🔄 partial — `infinity` and `not_a_number` added; **`-infinity` still missing** (see QW1) |
+| **E0.7** | Add `infinity`, `-infinity`, `not_a_number` reserved words to identifiers/keywords; ensure they aren't matched as `Identifier` in expression contexts. | 0.5 day | ✅ done — closed by QW1 (2026-07-15); `-infinity` parses via the existing unary `-` operator applied to the `infinity` `reserved_number` token. |
 | **E0.8** | Add `match`, `valueof`, `omit`, `present` template operations as `Primary` rules. | 1 day | ✅ done (commit `df061db`: template operations on Primary) |
 | **E0.9** | Add `ConstantExpression` as a stricter form of `Expression` (no function calls, no mutable vars). | 0.5 day | ✅ done (commit `df061db`: `ConstantExpression`) |
 
@@ -130,14 +130,14 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 
 | Phase | Effort | Critical path |
 |-------|--------|---------------|
-| Quick Wins | 1.5–2 days (3 of 5 remain: QW1 `-infinity`, QW3 `inline_template`, QW4 corpus fixes) | no (parallel) |
+| Quick Wins | 0.5 day remaining (1 of 5 open: **QW3 `inline_template` blocked — needs redesign**) | no (parallel) |
 | 0 — Expressions | 2–3 days remaining (E0.1, E0.5, E0.7 of 9 tasks) | **yes** (everything builds on it) |
 | 1 — Templates | 7–10 days | **yes** |
 | 2 — Statements/Comm | 7–10 days | **yes** |
 | 3 — Types/Ports | 4–6 days (3 new tasks TP3.9, TP3.10, TP3.11) | mostly parallel |
 | 4 — Validation | 5–7 days | **yes** (regression-protect) |
 | 5 — Polish | 2.5–4 days (P5.1 deduped into QW4) | cleanup |
-| **Total** | **29–42 working days remaining** | — |
+| **Total** | **28–41 working days remaining** | — |
 
 ---
 
@@ -150,7 +150,7 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 - **Patterns** (`pattern "..."`) are very rich; recommended to capture as a regex token to keep grammar tractable. Subtype-level pattern (TP3.9) and template-body pattern (T1.6) are distinct tasks.
 - **Real-world ASN.1 imports**: many files use `language "ASN.1:2002"` with `encode "UNALIGNED_PER_..."` in `import … all with {…}`. **Done** on `feature/quick-wins-batch-1` (QW5 / commit `12538b1`).
 - **Test corpus discipline**: thematic test files work well — keep adding to existing files (`behaviours.txt`, `templates.txt`, `statements.txt`, …) rather than creating new top-level files (see `test/corpus/AGENTS.md`).
-- **`infinity` / `-infinity` expression parsing**: spec treats `infinity` and `-infinity` as a single float value pair (spec C.1.9 line 24943). The grammar must distinguish the unary-minus case (legitimate in expression context) from the bare `-infinity` literal form. Currently only `infinity` and `not_a_number` are reserved (grammar.js line 1136); `-infinity` parses only when the existing `-` unary operator is applied to the `infinity` token. Verify this is sufficient by running `tree-sitter parse` on `HTTP_ASP_TypeDefs.ttcn` line 30 once grammar changes are in.
+- **`infinity` / `-infinity` expression parsing** *(closed 2026-07-15)*: spec treats `infinity` and `-infinity` as a single float value pair (spec C.1.9 line 24943). The grammar distinguishes the unary-minus case (legitimate in expression context, produces `(unary_expression operand: (reserved_number))`) from the bare `infinity` literal. Real-world 3GPP corpus scan: only `infinity` (positive) appears — no `-infinity` in `HTTP_ASP_TypeDefs.ttcn` (line 31 has `(1 .. infinity)`, not `-infinity`). The unary-minus approach is sufficient; locked in by two new corpus tests in `literals.txt`.
 - **`???` not-implemented identifier**: spec A.1.5 (Table A.2) lists `???` as a special terminal. Not currently a token in the grammar; deferred to post-1.0 unless real-world files demand it.
 
 ---

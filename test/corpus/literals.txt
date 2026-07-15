@@ -22,3 +22,22 @@ Invalid number
 ===
 123abc
 ---
+
+===
+Infinity
+===
+infinity
+---
+
+(source_file
+  (reserved_number))
+
+===
+Negative infinity
+===
+-infinity
+---
+
+(source_file
+  (unary_expression
+    (reserved_number)))
