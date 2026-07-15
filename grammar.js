@@ -394,7 +394,7 @@ module.exports = grammar({
       'template',
       field('restriction', optional(seq('(', $.template_restriction, ')'))),
       field('modifiers', optional($.template_modifier)),
-      $.reference,
+      field('type', optional($.name)),
       $._parameterized_name,
       field('parameters', optional($.parameters)),
       field('modifies', optional(seq('modifies', $.reference))),

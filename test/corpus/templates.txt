@@ -7,7 +7,7 @@ template (value) integer t := 5;
 (source_file
   (template
     (template_restriction)
-    (reference)
+    (name)
     (name)
     (primary
       (number))))
@@ -21,7 +21,7 @@ template (present) integer t := 5;
 (source_file
   (template
     (template_restriction)
-    (reference)
+    (name)
     (name)
     (primary
       (number))))
@@ -35,7 +35,7 @@ template (omit) integer t := omit;
 (source_file
   (template
     (template_restriction)
-    (reference)
+    (name)
     (name)
     (primary)))
 
@@ -47,7 +47,7 @@ template integer t := 5;
 
 (source_file
   (template
-    (reference)
+    (name)
     (name)
     (primary
       (number))))
@@ -260,7 +260,7 @@ template @fuzzy integer t := 5;
 (source_file
   (template
     (template_modifier)
-    (reference)
+    (name)
     (name)
     (primary
       (number))))
@@ -274,7 +274,7 @@ template @deterministic integer t := 5;
 (source_file
   (template
     (template_modifier)
-    (reference)
+    (name)
     (name)
     (primary
       (number))))
@@ -288,7 +288,7 @@ template @abstract integer t := 5;
 (source_file
   (template
     (template_modifier)
-    (reference)
+    (name)
     (name)
     (primary
       (number))))
@@ -302,7 +302,7 @@ template @fuzzy @deterministic integer t := 5;
 (source_file
   (template
     (template_modifier)
-    (reference)
+    (name)
     (name)
     (primary
       (number))))
@@ -316,7 +316,7 @@ template @fuzzy @deterministic @abstract integer t := 5;
 (source_file
   (template
     (template_modifier)
-    (reference)
+    (name)
     (name)
     (primary
       (number))))
@@ -356,7 +356,7 @@ template @fuzzy @abstract integer t := 5;
 (source_file
   (template
     (template_modifier)
-    (reference)
+    (name)
     (name)
     (primary
       (number))))
@@ -371,7 +371,106 @@ template @deterministic @fuzzy integer t := 5;
   (template
     (template_modifier)
     (ERROR)
-    (reference)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with formal parameters only
+===
+template MyTemplate(integer p_x) := p_x;
+---
+
+(source_file
+  (template
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (reference))))
+
+===
+Template with template formal parameter
+===
+template Generic(in T T_name) := 5;
+---
+
+(source_file
+  (template
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (number))))
+
+===
+Template with mixed formal parameters
+===
+template Both(in T T_name, integer p_x) := p_x;
+---
+
+(source_file
+  (template
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name))
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (reference))))
+
+===
+Template with type prefix and modifiers
+===
+template @fuzzy integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with type prefix and formal parameters
+===
+template integer t(integer p_x) := 5;
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (number))))
+
+===
+Template with no type, no params, no modifiers
+===
+template t := 5;
+---
+
+(source_file
+  (template
     (name)
     (primary
       (number))))
