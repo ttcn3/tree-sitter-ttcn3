@@ -1,0 +1,328 @@
+===
+Integer literals
+===
+function f() { return 5 }
+function g() { return -3 }
+function h() { return 0 }
+function i() { return 12345 }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (number))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (unary_expression
+          operand: (number)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (number))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (number)))))
+
+===
+Additive and multiplicative
+===
+function f() { return 5 + 3 }
+function g() { return 6 * 7 }
+function h() { return "foo" & "bar" }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (binary_expression
+          left: (number)
+          right: (number)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (binary_expression
+          left: (number)
+          right: (number)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (binary_expression
+          left: (charstring)
+          right: (charstring))))))
+
+===
+Logical operators
+===
+function f() { return a and b }
+function g() { return a or b }
+function h() { return a xor b }
+function i() { return not flag }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (binary_expression
+          left: (reference)
+          right: (reference)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (binary_expression
+          left: (reference)
+          right: (reference)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (binary_expression
+          left: (reference)
+          right: (reference)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (unary_expression
+          operand: (reference))))))
+
+===
+Precedence: multiply before add
+===
+function f() { return 5 + 3 * 2 }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (binary_expression
+          left: (number)
+          right: (binary_expression
+            left: (number)
+            right: (number)))))))
+
+===
+Parenthesized expressions
+===
+function f() { return (5 + 3) * 2 }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (binary_expression
+          left: (parenthesized_expression
+            (binary_expression
+              left: (number)
+              right: (number)))
+          right: (number))))))
+
+===
+Predefined functions
+===
+function f() { return lengthof(arr) }
+function g() { return match(value, t) }
+function h() { return valueof(t) }
+function i() { return int2char(65) }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (predefined_func_call
+          function: (predefined_func_name)
+          arguments: (reference)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (predefined_func_call
+          function: (predefined_func_name)
+          arguments: (reference)
+          arguments: (reference)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (predefined_func_call
+          function: (predefined_func_name)
+          arguments: (reference)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (predefined_func_call
+          function: (predefined_func_name)
+          arguments: (number))))))
+
+===
+Presence checks
+===
+function f() { return ispresent(x) }
+function g() { return isbound(x) }
+function h() { return isvalue(t) }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (presence_check
+          operand: (reference)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (presence_check
+          operand: (reference)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (presence_check
+          operand: (reference))))))
+
+===
+Decoded field reference
+===
+function f() { return x => MyType }
+function g() { return payload => OctetString }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (decoded_field_reference
+          operand: (reference)
+          type: (nested_type
+            (reference))))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (decoded_field_reference
+          operand: (reference)
+          type: (nested_type
+            (reference)))))))
+
+===
+Composite literal (list notation)
+===
+function f() { return { 1, 2, 3 } }
+function g() { return { "a", "b" } }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (composite_literal
+          (number)
+          (number)
+          (number)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (composite_literal
+          (charstring)
+          (charstring))))))
+
+===
+Compound value (assignment notation)
+===
+function f() { return { a := 1, b := 2 } }
+function g() { return { host := "", portField := c_defaultSipPort } }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (compound_value
+          field: (name)
+          value: (number)
+          field: (name)
+          value: (number)))))
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (compound_value
+          field: (name)
+          value: (charstring)
+          field: (name)
+          value: (reference))))))
+
+===
+Complex combined expression
+===
+function f() { return lengthof(arr) > 0 and not ispresent(x) }
+---
+
+(source_file
+  (func
+    name: (name)
+    parameters: (parameters)
+    body: (block
+      body: (return_stmt
+        (binary_expression
+          left: (binary_expression
+            left: (predefined_func_call
+              function: (predefined_func_name)
+              arguments: (reference))
+            right: (number))
+          right: (unary_expression
+            operand: (presence_check
+              operand: (reference))))))))
+
