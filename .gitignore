@@ -36,3 +36,9 @@ dist/
 *.wasm
 *.obj
 *.o
+
+# Reference TTCN code
+references/code/*
+
+# omo artifacts
+.omo/
