@@ -839,3 +839,87 @@ module M {
             (primary
               (reference))))
         (reference)))))
+
+===
+Activate - bare altstep call
+===
+module M {
+  function f() {
+    var default v_def := activate(a_Altstep())
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (reference
+                (function_call_expression
+                  (reference)
+                  (actual_parameters
+                    (actual_parameter
+                      (primary
+                        (reference
+                          (function_call_expression
+                            (reference)
+                            (actual_parameters)))))))))))))))
+
+===
+Deactivate - bare and with reference
+===
+module M {
+  function f() {
+    deactivate
+    deactivate(v_ref)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (deactivate_stmt)
+        (deactivate_stmt
+          (reference))))))
+
+===
+Repeat - in alt block
+===
+module M {
+  altstep a() {
+    [] p.receive { repeat }
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (altstep
+      (name)
+      (parameters)
+      (block
+        (reference
+          (index_expression
+            (reference
+              (MISSING _identifier))))
+        (receive_stmt
+          (reference))
+        (block
+          (repeat_stmt))))))
+
+

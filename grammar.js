@@ -924,6 +924,9 @@ module.exports = grammar({
       $.killed_stmt,
       $.running_stmt,
       $.alive_stmt,
+      $.activate_stmt,
+      $.deactivate_stmt,
+      $.repeat_stmt,
       $.reference,
       $.redirection_expr,
       $.assignment,
@@ -1119,6 +1122,13 @@ module.exports = grammar({
     running_stmt: $ => prec(1, seq(field('component', $.reference), '.', 'running', field('redirect', optional($.port_redirect)))),
     // S2.6: spec rule 284 AliveOp = ComponentOrAny "." "alive" [IndexAssignment]
     alive_stmt: $ => prec(1, seq(field('component', $.reference), '.', 'alive', field('redirect', optional($.port_redirect)))),
+    // S2.7: spec rule 520 ActivateOp = "activate" "(" AltstepInstance ")"
+    // AltstepInstance = FunctionInstance | AltstepInstance (ref or expression)
+    activate_stmt: $ => seq('activate', '(', field('altstep', $._expression), ')'),
+    // S2.7: spec rule 522 DeactivateStatement = "deactivate" ["(" ObjectReference ")"]
+    deactivate_stmt: $ => seq('deactivate', field('ref', optional(seq('(', $.reference, ')')))),
+    // S2.7: spec rule 519 RepeatStatement = "repeat"
+    repeat_stmt: $ => 'repeat',
     goto_stmt: $ => seq('goto', $.name),
     break_stmt: $ => seq('break', optional($.name)),
     continue_stmt: $ => seq('continue', optional($.name)),
@@ -1257,6 +1267,9 @@ module.exports = grammar({
       $.template,
       $.guarded_stmt,
       $.guarded_else_stmt,
+      $.activate_stmt,
+      $.deactivate_stmt,
+      $.repeat_stmt,
     ), optional(';'))), '}'),
 
     guarded_stmt: $ => seq(
