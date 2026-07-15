@@ -55,6 +55,13 @@ module.exports = grammar({
     [$.reference, $.name],
     [$.var_decl],
     [$.const_decl],
+
+    // Pre-existing conflicts: a `timer` or `port` declaration inside a
+    // `control { }` block parses ambiguously as either another declaration
+    // or as the continuation of the previous one (separated by `,`). GLR
+    // picks the correct parse.
+    [$.timer_decl],
+    [$.port_decl],
   ],
 
   rules: {

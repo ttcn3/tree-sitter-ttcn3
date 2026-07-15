@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "ttcn3",
   "word": "_identifier",
   "rules": {
@@ -8891,10 +8892,17 @@
     ],
     [
       "const_decl"
+    ],
+    [
+      "timer_decl"
+    ],
+    [
+      "port_decl"
     ]
   ],
   "precedences": [],
   "externals": [],
   "inline": [],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }

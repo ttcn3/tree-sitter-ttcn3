@@ -24,7 +24,15 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -970,6 +978,10 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "redirection_expr",
             "named": true
           },
@@ -999,6 +1011,10 @@
           },
           {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -1122,6 +1138,10 @@
           "named": true
         },
         {
+          "type": "port_decl",
+          "named": true
+        },
+        {
           "type": "redirection_expr",
           "named": true
         },
@@ -1151,6 +1171,10 @@
         },
         {
           "type": "template",
+          "named": true
+        },
+        {
+          "type": "timer_decl",
           "named": true
         },
         {
@@ -1263,7 +1287,7 @@
             "named": false
           },
           {
-            "type": "reference",
+            "type": "references",
             "named": true
           }
         ]
@@ -1384,6 +1408,10 @@
           "named": true
         },
         {
+          "type": "port_decl",
+          "named": true
+        },
+        {
           "type": "port_type",
           "named": true
         },
@@ -1421,6 +1449,10 @@
         },
         {
           "type": "testcase_type",
+          "named": true
+        },
+        {
+          "type": "timer_decl",
           "named": true
         },
         {
@@ -2455,6 +2487,10 @@
           "named": true
         },
         {
+          "type": "port_decl",
+          "named": true
+        },
+        {
           "type": "redirection_expr",
           "named": true
         },
@@ -2484,6 +2520,10 @@
         },
         {
           "type": "template",
+          "named": true
+        },
+        {
+          "type": "timer_decl",
           "named": true
         },
         {
@@ -2714,7 +2754,15 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -2780,6 +2828,10 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "redirection_expr",
             "named": true
           },
@@ -2809,6 +2861,10 @@
           },
           {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -3528,6 +3584,10 @@
           "named": true
         },
         {
+          "type": "port_decl",
+          "named": true
+        },
+        {
           "type": "port_type",
           "named": true
         },
@@ -3565,6 +3625,10 @@
         },
         {
           "type": "testcase_type",
+          "named": true
+        },
+        {
+          "type": "timer_decl",
           "named": true
         },
         {
@@ -3819,7 +3883,15 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -4612,6 +4684,10 @@
           "named": true
         },
         {
+          "type": "port_decl",
+          "named": true
+        },
+        {
           "type": "port_type",
           "named": true
         },
@@ -4649,6 +4725,10 @@
         },
         {
           "type": "testcase_type",
+          "named": true
+        },
+        {
+          "type": "timer_decl",
           "named": true
         },
         {
@@ -5019,6 +5099,56 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "port_decl",
+    "named": true,
+    "fields": {
+      "attributes": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "attributes",
+            "named": true
+          }
+        ]
+      },
+      "declarators": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "declarator",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "nested_type",
+            "named": true
+          }
+        ]
+      },
+      "visibility": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "visibility",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -6295,7 +6425,15 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -6450,7 +6588,15 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -6570,7 +6716,15 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -6690,7 +6844,15 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -6964,6 +7126,7 @@
   {
     "type": "source_file",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -7090,6 +7253,10 @@
           "named": true
         },
         {
+          "type": "port_decl",
+          "named": true
+        },
+        {
           "type": "port_type",
           "named": true
         },
@@ -7135,6 +7302,10 @@
         },
         {
           "type": "testcase_type",
+          "named": true
+        },
+        {
+          "type": "timer_decl",
           "named": true
         },
         {
@@ -7657,6 +7828,56 @@
     }
   },
   {
+    "type": "timer_decl",
+    "named": true,
+    "fields": {
+      "attributes": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "attributes",
+            "named": true
+          }
+        ]
+      },
+      "declarators": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "declarator",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "reference",
+            "named": true
+          }
+        ]
+      },
+      "visibility": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "visibility",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "type_instantiation_expression",
     "named": true,
     "fields": {},
@@ -8087,7 +8308,15 @@
             "named": true
           },
           {
+            "type": "port_decl",
+            "named": true
+          },
+          {
             "type": "template",
+            "named": true
+          },
+          {
+            "type": "timer_decl",
             "named": true
           },
           {
@@ -8296,7 +8525,8 @@
   },
   {
     "type": "comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "component",
