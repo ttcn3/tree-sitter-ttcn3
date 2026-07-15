@@ -108,6 +108,13 @@ module.exports = grammar({
     // top-level type definition or a nested-type-in-field follows. GLR.
     [$.record_of_type, $.nested_record_of_type],
     [$.set_of_type, $.nested_set_of_type],
+    // V1.6: `... { ... } ifpresent` — spec rule 95 BaseTemplateBody allows
+    // IfPresentKeyword as an optional ExtraMatchingAttributes AFTER the
+    // closing '}' of a template body. When `ifpresent` follows a `}` it may
+    // belong to the inner `compound_value` template body or to the enclosing
+    // field/parameter list (where it is the existing field-level ifpresent).
+    // Linear lookahead can't disambiguate. GLR.
+    [$.compound_value],
     // TP3.9: 'pattern "X"' — the same shape appears in both the
     // subtype-constraint form `(pattern "X")` and the template-body matching
     // form `pattern "X"` (used inside template bodies). Distinguishable only
@@ -786,6 +793,7 @@ module.exports = grammar({
         field('ifpresent', optional($.ifpresent)),
       )),
       '}',
+      field('body_ifpresent', optional($.ifpresent)),
     ),
 
     // Array value (spec A.526): list notation `[ expr, … ]` for record-of/set-of template bodies.

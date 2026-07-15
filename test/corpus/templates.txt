@@ -825,3 +825,31 @@ module M {
                 (name)
                 (primary
                   (number))))))))))
+
+===
+V16 Template body trailing ifpresent
+===
+module M {
+  type record R { integer f }
+  template R t := { f := 1 } ifpresent
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (template
+      (name)
+      (name)
+      (primary
+        (compound_value
+          (name)
+          (primary
+            (number))
+          (ifpresent))))))
