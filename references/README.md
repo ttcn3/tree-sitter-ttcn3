@@ -8,8 +8,15 @@ Reference material used to plan and validate the TTCN-3 grammar against authorit
 references/
 ├── specs/                          # TTCN-3 language specification
 │   └── TTCN-3 Core Language, ETSI ES 201 873-1.md
-└── code/                           # Real-world TTCN-3 source
-    └── NR5GC_IWD_26wk24/           # 3GPP NR5GC conformance testsuite, IWD week 26 / 2026
+├── code/                           # Real-world TTCN-3 source
+│   └── NR5GC_IWD_26wk24/           # 3GPP NR5GC conformance testsuite, IWD week 26 / 2026
+└── tree-sitter-doc/                # Tree-sitter official docs (offline markdown mirrors)
+    ├── Tree-sitter-#1-using-parsers.md
+    ├── Tree-sitter-#2-creating-parsers.md
+    ├── Tree-sitter-#3-syntax-highlighting.md
+    ├── Tree-sitter-#4-code-navigation.md
+    ├── Tree-sitter-#5-cli-reference.md
+    └── Tree-sitter-#5-implementation-#6-contributing.md
 ```
 
 ## `specs/`
@@ -60,6 +67,21 @@ Common/
 ├── NR5GC/              NR_V2X/          NasEmulation/
 ├── POS/                SuppServices/
 ```
+
+## `tree-sitter-doc/`
+
+Local markdown mirrors of the official [Tree-sitter documentation](https://tree-sitter.github.io/tree-sitter/). Kept in this repo so the docs can be searched and cited offline without web access. Upstream is a multi-page site; here it is collapsed into six long-form `.md` files mirroring the site's page order.
+
+> These files are **about the Tree-sitter tool** (grammar DSL, CLI, queries, parser API). They are **not authoritative for TTCN-3 semantics** — see [`specs/`](#specs) for that.
+
+| File | Topic | Read this when you need to… |
+|------|-------|------------------------------|
+| `Tree-sitter-#1-using-parsers.md` | C parser API, syntax trees, queries (S-expressions), predicates, `node-types.json`, ABI versions | consume a parser programmatically, write a tree-sitter query (`queries/*.scm`), or interpret parser output |
+| `Tree-sitter-#2-creating-parsers.md` | `grammar.js` DSL (`seq`/`choice`/`prec`/`field`/…), rule design, precedence & associativity, conflicts, external scanners, corpus tests, publishing & semver | **edit `grammar.js`, design new rules, or debug parse conflicts** — the most-used file for grammar work |
+| `Tree-sitter-#3-syntax-highlighting.md` | `queries/highlights.scm`, locals, language injection, `tree-sitter highlight` CLI | author syntax-highlighting queries or configure an embedded-language injection |
+| `Tree-sitter-#4-code-navigation.md` | `queries/tags.scm`, `@role.kind` captures, `tree-sitter tags` CLI | author code-navigation queries (definitions, references, symbols) for LSP-style features |
+| `Tree-sitter-#5-cli-reference.md` | Every `tree-sitter` subcommand: `init`, `generate`, `build`, `parse`, `test`, `fuzz`, `query`, `highlight`, `tags`, `version`, `playground`, etc. | look up a CLI flag, an option, or a `tree-sitter.json` field |
+| `Tree-sitter-#5-implementation-#6-contributing.md` | Tree-sitter internals, AI contribution policy, release workflow, debugging tools (sanitizers, lldb), published packages | work on tree-sitter itself (rare for this project); relevant if upstream patches are being prepared |
 
 ## Related deliverables
 
