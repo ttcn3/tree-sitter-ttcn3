@@ -986,3 +986,82 @@ module M {
           (reference
             (function_call_expression
               (reference))))))))
+
+===
+Testcase.stop - bare
+===
+module M {
+  testcase tc() runs on C {
+    testcase.stop
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (testcase_stop_stmt)))))
+
+===
+Testcase.stop - with log args
+===
+module M {
+  testcase tc() runs on C {
+    testcase.stop("reason", "more reason", 5)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (testcase_stop_stmt
+          (primary
+            (charstring))
+          (primary
+            (charstring))
+          (primary
+            (number)))))))
+
+===
+Execute - basic testcase invocation
+===
+module M {
+  testcase tc() runs on C {
+    execute(otherTC(), 1.0)
+    execute(otherTC(x), 0.5, 5)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (execute_stmt
+          (actual_parameters)
+          (primary
+            (number)))
+        (execute_stmt
+          (actual_parameters
+            (actual_parameter
+              (primary
+                (reference))))
+          (primary
+            (number))
+          (primary
+            (number)))))))

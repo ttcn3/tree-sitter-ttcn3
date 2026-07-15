@@ -89,6 +89,10 @@ module.exports = grammar({
     [$.running_stmt, $.running_timer_stmt],
     // S2.8: `comp.start(fn)` (S2.6) vs `timer.start(duration)` (S2.8). Both `ref.start(arg)`.
     [$.start_tc_stmt, $.start_timer_stmt],
+    // S2.9: execute(...) — the `,` after actual_parameters could be the end of
+    // the call or start of the optional timer/duration clauses. Tree-sitter
+    // can't decide on linear lookahead; GLR tries both.
+    [$.execute_stmt],
 
     // Pre-existing conflicts: a `timer` or `port` declaration inside a
     // `control { }` block parses ambiguously as either another declaration
@@ -942,6 +946,8 @@ module.exports = grammar({
       $.read_timer_stmt,
       $.running_timer_stmt,
       $.timeout_timer_stmt,
+      $.testcase_stop_stmt,
+      $.execute_stmt,
       $.reference,
       $.redirection_expr,
       $.assignment,
@@ -1165,6 +1171,19 @@ module.exports = grammar({
       field('timer', choice($.reference, seq('any', 'timer'), seq('any', 'from', $._identifier))),
       '.', 'timeout', field('redirect', optional($.port_redirect)),
     )),
+    // S2.9: spec rule 406 TestcaseOperation = "testcase" "." "stop" ["(" { LogItem [","] } ")"]
+    testcase_stop_stmt: $ => seq(
+      'testcase', '.', 'stop', field('log_args', optional(seq('(', sepBy(',', $._expression), ')'))),
+    ),
+    // S2.9: spec rule 196 TestcaseInstance = "execute" "(" ExtendedIdentifier "(" [ActualParList] ")" ["," ...] ")"
+    execute_stmt: $ => seq(
+      'execute', '(',
+      field('testcase', $._identifier),
+      field('call_args', $.actual_parameters),
+      field('timer', optional(seq(',', field('timer_val', choice($._expression, '-'))))),
+      field('duration', optional(seq(',', $._expression))),
+      ')',
+    ),
     goto_stmt: $ => seq('goto', $.name),
     break_stmt: $ => seq('break', optional($.name)),
     continue_stmt: $ => seq('continue', optional($.name)),
