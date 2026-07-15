@@ -713,3 +713,114 @@ template charstring PatT := pattern "abc*";
     (primary
       (pattern_match
         (charstring)))))
+
+===
+Template with modifies clause (derived template)
+===
+template MyRec T1 := { field1 := 1 };
+template MyRec T2 modifies T1 := { field1 := 2 };
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (number)))))
+  (template
+    (name)
+    (name)
+    (name)
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (number))))))
+
+===
+Template with modifies and parameterized base
+===
+template MyRec T3(integer p) := { field1 := p };
+template MyRec T4(integer p) modifies T3(p) := { field1 := 0 };
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (reference)))))
+  (template
+    (name)
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (name)
+    (primary
+      (reference))
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (number))))))
+
+===
+Function call with named actual parameters
+===
+module M {
+  function f(integer x, integer y) { return x + y }
+  testcase tc() { f(x := 1, y := 2) }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name))
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (block
+        (return_stmt
+          (add_expression
+            (primary
+              (reference))
+            (primary
+              (reference))))))
+    (testcase
+      (name)
+      (parameters)
+      (block
+        (reference
+          (function_call_expression
+            (reference)
+            (actual_parameters
+              (actual_parameter
+                (name)
+                (primary
+                  (number)))
+              (actual_parameter
+                (name)
+                (primary
+                  (number))))))))))

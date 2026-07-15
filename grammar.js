@@ -401,7 +401,7 @@ module.exports = grammar({
       field('type', optional($.name)),
       $._parameterized_name,
       field('parameters', optional($.parameters)),
-      field('modifies', optional(seq('modifies', $.reference))),
+      field('modifies', optional($._modifies_spec)),
       ':=',
       $._expression,
       field('attributes', optional($.attributes)),
@@ -781,10 +781,9 @@ module.exports = grammar({
     function_call_expression: $ => prec.left(PREC.primary, choice(
       seq(
         field('function', $.reference),
-        '(',
-        field('arguments', sepBy(',', $._expression)),
+        field('arguments', $.actual_parameters),
         field('variadic', optional('...')),
-        ')'),
+      ),
       seq(
         field('function', seq('any', 'from')),
         field('arguments', alias($._identifier, $.reference))),
@@ -851,6 +850,13 @@ module.exports = grammar({
     _parameterized_name: $ => seq(
       field('name', $.name),
       field('type_parameters', optional($.type_parameters)),
+    ),
+
+    // Derived template spec: `modifies BaseTemplate [(actual_params)]` (spec §15.2)
+    _modifies_spec: $ => seq(
+      'modifies',
+      $._parameterized_name,
+      field('arguments', optional(seq('(', sepBy(',', $._expression), ')'))),
     ),
 
     _definition_body: $ => seq(
@@ -1144,6 +1150,18 @@ module.exports = grammar({
       '(',
       sepBy(',', $.parameter),
       ')'
+    ),
+
+    // Actual parameter list: named assignments (`name := expr`) and positional expressions (spec A.1.6.8)
+    actual_parameters: $ => seq(
+      '(',
+      sepBy(',', $.actual_parameter),
+      ')'
+    ),
+
+    actual_parameter: $ => choice(
+      field('named', seq($.name, ':=', $._expression)),
+      $._expression,
     ),
 
     parameter: $ => seq(

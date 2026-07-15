@@ -4,7 +4,7 @@
 
 This plan completes the tree-sitter TTCN-3 grammar from its current WIP state to a grammar that parses real-world 3GPP conformance TTCN code. See [`gap-analysis.md`](./gap-analysis.md) for the underlying inventory.
 
-> **Branch status (2026-07-15):** Quick Wins 3 of 5 done (QW1 done, QW3 **blocked — needs redesign**, QW4 done, QW5 done); Phase 0 expressions — 8 of 9 tasks done (E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.8, E0.9 landed; E0.7 `-infinity` closed via QW1). **Phase 1 templates — 5 of 8 tasks done** (T1.1, T1.2, T1.3, T1.4, T1.5 landed). 0 corpus tests failing (79/79 pass). **Real-world: HTTP_CommonTemplates.ttcn errors 17→4 (76% reduction).** See inline status notes per task.
+> **Branch status (2026-07-15):** Quick Wins 3 of 5 done (QW1 done, QW3 **blocked — needs redesign**, QW4 done, QW5 done); Phase 0 expressions — 8 of 9 tasks done (E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.8, E0.9 landed; E0.7 `-infinity` closed via QW1). **Phase 1 templates — 8 of 8 tasks done** (T1.1, T1.2, T1.3, T1.4, T1.5, T1.6, T1.7, T1.8 all landed). 0 corpus tests failing (82/82 pass). **Real-world: HTTP_CommonTemplates.ttcn errors 17→4 (76% reduction).** See inline status notes per task.
 
 ---
 
@@ -132,7 +132,7 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 |-------|--------|---------------|
 | Quick Wins | 0.5 day remaining (1 of 5 open: **QW3 `inline_template` blocked — needs redesign**) | no (parallel) |
 | 0 — Expressions | **done** (8/9 tasks; E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.7, E0.8, E0.9 — E0.1 closed 2026-07-15, E0.5 closed 2026-07-15) | **yes** (everything builds on it) |
-| 1 — Templates | 2.5–5.5 days remaining (T1.1, T1.2, T1.3, T1.4, T1.5 done 2026-07-15) | **yes** |
+| 1 — Templates | 0 days remaining (T1.1–T1.8 all done 2026-07-15) | **yes** |
 | 2 — Statements/Comm | 7–10 days | **yes** |
 | 3 — Types/Ports | 4–6 days (3 new tasks TP3.9, TP3.10, TP3.11) | mostly parallel |
 | 4 — Validation | 5–7 days | **yes** (regression-protect) |
