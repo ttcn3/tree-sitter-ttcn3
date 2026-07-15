@@ -93,6 +93,16 @@ module.exports = grammar({
     // the call or start of the optional timer/duration clauses. Tree-sitter
     // can't decide on linear lookahead; GLR tries both.
     [$.execute_stmt],
+    // TP3.9: 'pattern "X"' — the same shape appears in both the
+    // subtype-constraint form `(pattern "X")` and the template-body matching
+    // form `pattern "X"` (used inside template bodies). Distinguishable only
+    // by surrounding context.
+    [$.pattern_constraint, $.pattern_match],
+    // TP3.8: 'modifier' is a choice of @abstract/@control/.../etc; 'template_modifier'
+    // is a choice of ordered combos of @fuzzy/@deterministic/@abstract. The
+    // lexer prefix '@' is identical; tree-sitter can't disambiguate without
+    // seeing what comes after.
+    [$.modifier, $.template_modifier],
 
     // Pre-existing conflicts: a `timer` or `port` declaration inside a
     // `control { }` block parses ambiguously as either another declaration
@@ -330,8 +340,11 @@ module.exports = grammar({
       $._parameterized_name,
       field('value_constraint', optional($.template_values)),
       field('length_constraint', optional($.length_spec)),
+      field('pattern_constraint', optional($.pattern_constraint)),
       field('attributes', optional($.attributes)),
     ),
+
+    pattern_constraint: $ => seq('(', 'pattern', field('pattern', $.charstring), ')'),
 
     record_type: $ => seq(
       field('visibility', optional($.visibility)),
@@ -407,9 +420,15 @@ module.exports = grammar({
       field('visibility', optional($.visibility)),
       'port',
       field('type', $.nested_type),
-      field('declarators', sepBy1(',', $.declarator)),
+      field('declarators', sepBy1(',', $.port_declarator)),
       field('attributes', optional($.attributes)),
     ),
+
+    port_declarator: $ => prec.left(seq(
+      $._parameterized_name,
+      field('array_dim', optional(seq('[', $._expression, ']'))),
+      field('value', optional(seq(':=', $._expression))),
+    )),
 
     map_type: $ => seq(
       field('visibility', optional($.visibility)),
@@ -1345,7 +1364,7 @@ module.exports = grammar({
       field('body', $.block),
     ),
 
-    nested_type: $ => $.reference,
+    nested_type: $ => choice($.reference, 'anytype'),
 
     port_attributes: $ => seq(
       '{',
@@ -1510,7 +1529,10 @@ module.exports = grammar({
 
     _identifier: _ => /[a-zA-Z_]\w*/,
 
-    modifier: _ => /@\w+/,
+    modifier: _ => choice(
+      '@abstract', '@control', '@decoded', '@default', '@deterministic',
+      '@fuzzy', '@index', '@lazy', '@local', '@nocase', '@nodefault'
+    ),
 
     boolean_literal: _ => choice('true', 'false'),
     verdict_literal: _ => choice('none', 'pass', 'inconc', 'fail', 'error'),

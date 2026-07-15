@@ -1,7 +1,7 @@
 ===
 Simple
 ===
-private type external class @foo C extends A runs on B {} finally { } with { }
+private type external class @abstract C extends A runs on B {} finally { } with { }
 ---
 
 (source_file

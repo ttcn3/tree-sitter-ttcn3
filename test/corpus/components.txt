@@ -13,3 +13,51 @@ public type component C extends D,E {} with {}
       (reference))
     (block)
     (attributes)))
+
+===
+Port declaration with array dimension
+===
+module M {
+  type component C {
+    port LoopbackPort P;
+    port LoopbackPort P2[3];
+    port LoopbackPort P3 := P;
+    port LoopbackPort P4[N] := P;
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (component_type
+      (name)
+      (block
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)))
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)
+            (primary
+              (number))))
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)
+            (primary
+              (reference))))
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)
+            (primary
+              (reference))
+            (primary
+              (reference))))))))

@@ -39,3 +39,67 @@ const integer c := -;
     (declarator
       (name)
       (primary))))
+
+===
+Charstring subtype with pattern constraint
+===
+module M {
+  type charstring HexString (pattern "[0-9A-F]+");
+  type charstring Letters (pattern "abc*xyz");
+  type charstring Hex2 (pattern "[0-9a-fA-F]{6}");
+}
+---
+
+(source_file
+  (module
+    (name)
+    (subtype
+      (nested_type
+        (reference))
+      (name)
+      (pattern_constraint
+        (charstring)))
+    (subtype
+      (nested_type
+        (reference))
+      (name)
+      (pattern_constraint
+        (charstring)))
+    (subtype
+      (nested_type
+        (reference))
+      (name)
+      (pattern_constraint
+        (charstring)))))
+
+===
+Anytype predefined type
+===
+module M {
+  type anytype AnyT;
+  var anytype x;
+  template anytype t := ?;
+  type record R { anytype field1 };
+}
+---
+
+(source_file
+  (module
+    (name)
+    (subtype
+      (nested_type)
+      (name))
+    (var_decl
+      (nested_type)
+      (declarator
+        (name)))
+    (template
+      (name)
+      (name)
+      (primary
+        (any_value)))
+    (record_type
+      (name)
+      (field
+        (nested_type)
+        (name)))))
