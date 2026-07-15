@@ -4440,6 +4440,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "reserved_number"
+        },
+        {
+          "type": "SYMBOL",
           "name": "charstring"
         },
         {
@@ -6122,6 +6126,10 @@
               {
                 "type": "SYMBOL",
                 "name": "number"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "reserved_number"
               },
               {
                 "type": "SYMBOL",
@@ -8819,6 +8827,19 @@
           }
         ]
       }
+    },
+    "reserved_number": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "infinity"
+        },
+        {
+          "type": "STRING",
+          "value": "not_a_number"
+        }
+      ]
     },
     "charstring": {
       "type": "PATTERN",

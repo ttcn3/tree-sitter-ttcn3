@@ -502,6 +502,7 @@ module.exports = grammar({
       $.boolean_literal,
       $.verdict_literal,
       $.number,
+      $.reserved_number,
       $.charstring,
       $.bitstring,
       $.hexstring,
@@ -681,7 +682,7 @@ module.exports = grammar({
 
     _boundary: $ => seq(
       field('exclusive', optional('!')),
-      field('boundary', choice($.number, $.reference)),
+      field('boundary', choice($.number, $.reserved_number, $.reference)),
     ),
 
     _parameterized_name: $ => seq(
@@ -1043,6 +1044,8 @@ module.exports = grammar({
     malformed_string: $ => /'[^']+'[a-zA-Z_]*/,
 
     number: _ => token(seq(/\d+(\.\d+)?/, optional(/[eE][+-]?[0-9][0-9_]*/),)),
+
+    reserved_number: _ => choice('infinity', 'not_a_number'),
 
     charstring: _ => /\"(\\.|\"\"|[^\"])*\"/,
     comment: $ => token(choice(

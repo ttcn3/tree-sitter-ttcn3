@@ -410,6 +410,10 @@
           "named": true
         },
         {
+          "type": "reserved_number",
+          "named": true
+        },
+        {
           "type": "template_values",
           "named": true
         },
@@ -500,6 +504,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -718,6 +726,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -895,6 +907,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -1593,6 +1609,10 @@
           "named": true
         },
         {
+          "type": "reserved_number",
+          "named": true
+        },
+        {
           "type": "template_values",
           "named": true
         },
@@ -1963,6 +1983,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -2054,6 +2078,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -2220,6 +2248,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -2634,6 +2666,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -2725,6 +2761,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -3153,6 +3193,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -3737,6 +3781,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -3832,6 +3880,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -4173,6 +4225,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -4252,6 +4308,10 @@
         },
         {
           "type": "reference",
+          "named": true
+        },
+        {
+          "type": "reserved_number",
           "named": true
         },
         {
@@ -4340,6 +4400,10 @@
           {
             "type": "reference",
             "named": true
+          },
+          {
+            "type": "reserved_number",
+            "named": true
           }
         ]
       },
@@ -4372,6 +4436,10 @@
           {
             "type": "reference",
             "named": true
+          },
+          {
+            "type": "reserved_number",
+            "named": true
           }
         ]
       },
@@ -4389,6 +4457,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           }
         ]
@@ -4917,6 +4989,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -5640,6 +5716,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -5726,6 +5806,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -5801,6 +5885,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -5886,6 +5974,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -5965,6 +6057,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -6050,6 +6146,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -6126,6 +6226,11 @@
     }
   },
   {
+    "type": "reserved_number",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "return_stmt",
     "named": true,
     "fields": {},
@@ -6179,6 +6284,10 @@
         },
         {
           "type": "reference",
+          "named": true
+        },
+        {
+          "type": "reserved_number",
           "named": true
         },
         {
@@ -6301,6 +6410,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -6392,6 +6505,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -6558,6 +6675,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -6686,6 +6807,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -6811,6 +6936,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -7273,6 +7402,10 @@
           "named": true
         },
         {
+          "type": "reserved_number",
+          "named": true
+        },
+        {
           "type": "set_of_type",
           "named": true
         },
@@ -7553,6 +7686,10 @@
           "named": true
         },
         {
+          "type": "reserved_number",
+          "named": true
+        },
+        {
           "type": "template_values",
           "named": true
         },
@@ -7626,6 +7763,10 @@
         },
         {
           "type": "reference",
+          "named": true
+        },
+        {
+          "type": "reserved_number",
           "named": true
         },
         {
@@ -8020,6 +8161,10 @@
             "named": true
           },
           {
+            "type": "reserved_number",
+            "named": true
+          },
+          {
             "type": "template_values",
             "named": true
           },
@@ -8275,6 +8420,10 @@
           },
           {
             "type": "reference",
+            "named": true
+          },
+          {
+            "type": "reserved_number",
             "named": true
           },
           {
@@ -8661,6 +8810,10 @@
     "named": false
   },
   {
+    "type": "infinity",
+    "named": false
+  },
+  {
     "type": "inout",
     "named": false
   },
@@ -8730,6 +8883,10 @@
   },
   {
     "type": "not4b",
+    "named": false
+  },
+  {
+    "type": "not_a_number",
     "named": false
   },
   {
