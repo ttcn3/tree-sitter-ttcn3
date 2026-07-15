@@ -897,6 +897,7 @@ module.exports = grammar({
       'length', '(',
       field('lower', optional(seq($._boundary, '..'))),
       field('upper', $._boundary),
+      ')',
     ),
 
     _boundary: $ => seq(
@@ -1368,7 +1369,7 @@ module.exports = grammar({
       field('body', $.block),
     ),
 
-    nested_type: $ => choice($.reference, 'anytype', $.nested_map_type),
+    nested_type: $ => choice($.reference, 'anytype', prec(1, seq('universal', 'charstring')), $.nested_map_type),
 
     // Spec A.26: NestedMapDef ::= "map" "from" Type "to" TypeOrNestedTypeDef.
     // Used as the type of a record/set/union field (no identifier follows the type).

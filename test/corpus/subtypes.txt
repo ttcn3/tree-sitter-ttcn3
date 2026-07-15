@@ -103,3 +103,72 @@ module M {
       (field
         (nested_type)
         (name)))))
+
+===
+Universal charstring predefined type
+===
+module M {
+  type universal charstring Ucs;
+  var universal charstring x;
+  function f(universal charstring s) {}
+}
+---
+
+(source_file
+  (module
+    (name)
+    (subtype
+      (nested_type)
+      (name))
+    (var_decl
+      (nested_type)
+      (declarator
+        (name)))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type)
+          (name)))
+      (block))))
+
+===
+Record-of with length restriction
+===
+module M {
+  type record length(10) of integer R;
+  type record length(0..100) of charstring Rc;
+  type record length(!1..!100) of boolean Rb;
+  type set length(5) of octetstring Sb;
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_of_type
+      (length_spec
+        (number))
+      (nested_type
+        (reference))
+      (name))
+    (record_of_type
+      (length_spec
+        (number)
+        (number))
+      (nested_type
+        (reference))
+      (name))
+    (record_of_type
+      (length_spec
+        (number)
+        (number))
+      (nested_type
+        (reference))
+      (name))
+    (set_of_type
+      (length_spec
+        (number))
+      (nested_type
+        (reference))
+      (name))))
