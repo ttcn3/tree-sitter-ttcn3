@@ -667,3 +667,175 @@ module M {
         (unmap_stmt
           (primary
             (number)))))))
+
+===
+CreateOp - basic with name
+===
+module M {
+  function f() {
+    v_PTC := NR5GC_PTC.create("NR5GC")
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (assignment
+          (reference)
+          (primary
+            (reference
+              (function_call_expression
+                (reference
+                  (selector_expression
+                    (reference)
+                    (reference)))
+                (actual_parameters
+                  (actual_parameter
+                    (primary
+                      (charstring))))))))))))
+
+===
+CreateOp - with alive modifier
+===
+module M {
+  function f() {
+    v_PTC := NR5GC_PTC.create("NR5GC") alive
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (assignment
+          (reference)
+          (primary
+            (reference
+              (function_call_expression
+                (reference
+                  (selector_expression
+                    (reference)
+                    (reference)))
+                (actual_parameters
+                  (actual_parameter
+                    (primary
+                      (charstring))))))))
+        (reference)))))
+
+===
+StartTC - component starts function
+===
+module M {
+  function f() {
+    v_PTC.start(f_Behaviour())
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (start_tc_stmt
+          (reference)
+          (primary
+            (reference
+              (function_call_expression
+                (reference)
+                (actual_parameters)))))))))
+
+===
+StopTC - kill / stop / done / killed
+===
+module M {
+  function f() {
+    v_PTC.stop
+    all component.stop
+    v_PTC.kill
+    all component.kill
+    v_PTC.done
+    v_PTC.done -> value v_x
+    v_PTC.killed
+    v_PTC.killed -> value v_x
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (port_stop_stmt
+          (reference))
+        (stop_tc_stmt)
+        (kill_tc_stmt
+          (reference))
+        (kill_tc_stmt)
+        (done_stmt
+          (reference))
+        (done_stmt
+          (reference)
+          (port_redirect
+            (primary
+              (reference))))
+        (reference)
+        (killed_stmt
+          (reference))
+        (killed_stmt
+          (reference)
+          (port_redirect
+            (primary
+              (reference))))
+        (reference)))))
+
+===
+AliveOp / RunningOp with redirect
+===
+module M {
+  function f() {
+    v_PTC.alive
+    v_PTC.alive -> index v_i
+    v_PTC.running
+    v_PTC.running -> index v_i
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (alive_stmt
+          (reference))
+        (alive_stmt
+          (reference)
+          (port_redirect
+            (primary
+              (reference))))
+        (reference)
+        (running_stmt
+          (reference))
+        (running_stmt
+          (reference)
+          (port_redirect
+            (primary
+              (reference))))
+        (reference)))))

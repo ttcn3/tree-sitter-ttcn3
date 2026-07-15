@@ -70,6 +70,16 @@ module.exports = grammar({
     // could be a `from_clause` or a fresh reference. GLR resolves.
     [$.reference, $.from_clause],
 
+    // S2.6: `comp.create(...)` overlaps with `reference . something`
+    // at the dot. The look-ahead table can't tell whether the next token
+    // starts a `create_stmt`, a `function_call_expression`, or another
+    // dot-op. GLR picks based on what follows the `comp` identifier.
+    [$.reference, $.create_stmt],
+    // S2.6: `all component.stop` / `all component.kill` — the `all component`
+    // tail could be a `reference` (via alias), a `stop_tc_stmt` body, or a
+    // `kill_tc_stmt` body. Same syntactic shape, different semantics.
+    [$.reference, $.stop_tc_stmt, $.kill_tc_stmt],
+
     // Pre-existing conflicts: a `timer` or `port` declaration inside a
     // `control { }` block parses ambiguously as either another declaration
     // or as the continuation of the previous one (separated by `,`). GLR
@@ -906,6 +916,14 @@ module.exports = grammar({
       $.map_stmt,
       $.disconnect_stmt,
       $.unmap_stmt,
+      $.create_stmt,
+      $.start_tc_stmt,
+      $.stop_tc_stmt,
+      $.kill_tc_stmt,
+      $.done_stmt,
+      $.killed_stmt,
+      $.running_stmt,
+      $.alive_stmt,
       $.reference,
       $.redirection_expr,
       $.assignment,
@@ -1075,6 +1093,32 @@ module.exports = grammar({
       seq('(', 'all', 'component', ':', 'all', 'port', ')'),
       seq('(', field('value_ref', $._identifier), ',', field('expr', $._expression), ')'),
     ))))),
+    // S2.6: spec rule 272 CreateOp = ComponentType "." "create" ["(" SingleExpression ["," SingleExpression] ")"] ["alive"]
+    create_stmt: $ => seq(
+      field('component_type', $._identifier), '.', 'create',
+      field('args', optional(seq('(', choice($._expression, '-'), optional(seq(',', $._expression)), ')'))),
+      field('alive', optional('alive')),
+    ),
+    // S2.6: spec rule 302 StartTCStatement = ObjectReference "." "start" "(" (FunctionInstance | AltstepInstance) ")"
+    start_tc_stmt: $ => prec(1, seq(
+      field('component', $.reference), '.', 'start', '(', field('callable', $._expression), ')',
+    )),
+    // S2.6: spec rule 304 StopTCStatement = "stop" | (ComponentReferenceOrLiteral | "all" "component") "." "stop"
+    stop_tc_stmt: $ => seq(
+      field('component', choice($.reference, seq('all', 'component'))), '.', 'stop',
+    ),
+    // S2.6: spec rule 306 KillTCStatement = "kill" | ((ComponentReferenceOrLiteral | "all" "component") "." "kill")
+    kill_tc_stmt: $ => seq(
+      field('component', choice($.reference, seq('all', 'component'))), '.', 'kill',
+    ),
+    // S2.6: spec rule 274 DoneStatement = ComponentOrAny "." "done" ["->" [ValueStoreSpec] [IndexSpec]]
+    done_stmt: $ => prec(1, seq(field('component', $.reference), '.', 'done', field('redirect', optional($.port_redirect)))),
+    // S2.6: spec rule 279 KilledStatement = same as DoneStatement but "killed"
+    killed_stmt: $ => prec(1, seq(field('component', $.reference), '.', 'killed', field('redirect', optional($.port_redirect)))),
+    // S2.6: spec rule 282 RunningOp = ComponentOrAny "." "running" [IndexAssignment]
+    running_stmt: $ => prec(1, seq(field('component', $.reference), '.', 'running', field('redirect', optional($.port_redirect)))),
+    // S2.6: spec rule 284 AliveOp = ComponentOrAny "." "alive" [IndexAssignment]
+    alive_stmt: $ => prec(1, seq(field('component', $.reference), '.', 'alive', field('redirect', optional($.port_redirect)))),
     goto_stmt: $ => seq('goto', $.name),
     break_stmt: $ => seq('break', optional($.name)),
     continue_stmt: $ => seq('continue', optional($.name)),
