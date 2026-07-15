@@ -606,9 +606,14 @@ module.exports = grammar({
       field('operand', $._expression),
     )),
 
+    // Minus placeholder (spec A.1.5 / B.1.4): bare `-` is a complete
+    // expression for uninitialized field/const/modulepar defaults. The
+    // `prec(146, ...)` (one above PREC.unary) prevents a phantom
+    // `unary_expression('-', <missing operand>)` from being chosen.
     primary: $ => choice(
       'null',
       'omit',
+      prec(146, '-'),
       $.boolean_literal,
       $.verdict_literal,
       $.number,

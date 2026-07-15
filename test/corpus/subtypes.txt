@@ -25,3 +25,17 @@ type charstring str with { encode "UTF8" }
     (attributes
       (attribute
         (charstring)))))
+
+===
+Default value with Minus placeholder
+===
+const integer c := -;
+---
+
+(source_file
+  (const_decl
+    (nested_type
+      (reference))
+    (declarator
+      (name)
+      (primary))))
