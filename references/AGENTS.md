@@ -36,6 +36,8 @@ Anchor points inside this file (per the project README):
 - **Annex B (line 23384)** — template matching mechanisms
 - **Annex C (line 24765)** — predefined functions
 
+For a complete chapter-by-chapter map with line ranges and one-line summaries (clauses 1–27 + Annexes A–H), see [`README.md`](./README.md#chapter-map-of-ttcn-3-core-language-etsi-es-201-873-1md) under `specs/`. Use that map when you need to scope work to a specific clause or look up the exact line range for any construct.
+
 **Use this folder when:** resolving whether a TTCN-3 construct is valid, looking up BNF syntax, or scoping which parts of the language the grammar still needs to cover.
 
 **Do NOT use this folder when:** looking for tree-sitter DSL syntax, CLI usage, or parser API details — those are in `tree-sitter-doc/`.
