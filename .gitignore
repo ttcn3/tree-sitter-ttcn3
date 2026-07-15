@@ -37,6 +37,11 @@ dist/
 *.obj
 *.o
 
+# Tree-sitter generated parser artifacts (regenerate via 'tree-sitter generate')
+src/parser.c
+src/grammar.json
+src/node-types.json
+
 # Reference TTCN code
 references/code/*
 
