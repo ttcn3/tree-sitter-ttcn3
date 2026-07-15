@@ -1,8 +1,10 @@
 # TTCN-3 Grammar — Development Plan
 
-> Generated: 2026-07-15 · Branch: `main` · Spec: ETSI ES 201 873-1 V4.17.1 (2025-09)
+> Generated: 2026-07-15 · Branch: `feature/quick-wins-batch-1` (21 commits ahead of `main`) · Spec: ETSI ES 201 873-1 V4.17.1 (2025-09)
 
 This plan completes the tree-sitter TTCN-3 grammar from its current WIP state to a grammar that parses real-world 3GPP conformance TTCN code. See [`gap-analysis.md`](./gap-analysis.md) for the underlying inventory.
+
+> **Branch status (2026-07-15):** Quick Wins 2 of 5 done (QW1 partial, QW4 partial, QW5 done); Phase 0 expressions ~6 of 9 tasks done (E0.2, E0.3, E0.4, E0.6, E0.8, E0.9 landed; E0.1 precedence chain, E0.5 `Minus` placeholder, E0.7 `-infinity` still open); 1 corpus test failing (`Invalid number` in `literals.txt`). See inline status notes per task.
 
 ---
 
@@ -10,11 +12,11 @@ This plan completes the tree-sitter TTCN-3 grammar from its current WIP state to
 
 Land these as standalone PRs before the big phases to fix the most-cited real-world failures:
 
-1. **Add `infinity`, `-infinity`, `not_a_number` keywords** — fixes the `HTTP_ASP_TypeDefs.ttcn` failure
-2. **Add `+` / `-` literals and `omit` to the numeric-token set** (largely done)
-3. **Fix `inline_template` rule** — make it `optional(seq($.reference, ':')) $._expression` — unblocks one class of testcases
-4. **Fix the 3 known-failing corpus tests** (`class_type`, `component_type`, `configuration` produce wrong modifiers/visibility)
-5. **Wire `import ... language "..."` clause** — allows `import from X language "ASN.1:2002" all with {encode "..."}` to parse cleanly
+1. **Add `infinity`, `-infinity`, `not_a_number` keywords** — fixes the `HTTP_ASP_TypeDefs.ttcn` failure. **Status:** `infinity` and `not_a_number` added (`grammar.js` line 1136 `reserved_number`); **`-infinity` still missing** (spec C.1.9 line 24943 confirms `-infinity` is a valid float value distinct from `infinity`). Recommended: extend `reserved_number` to allow a leading `-` in expression contexts, or rely on the existing unary `-` operator on the `infinity` token and verify on real-world files.
+2. **Add `+` / `-` literals and `omit` to the numeric-token set** — narrowly scoped to the literal/reserved-token layer (the recent `compound_value`, `predefined_func_call`, `presence_check`, `decoded_field_reference`, `ConstantExpression`, template-op commits belong to Phase 0, not here). **Status:** the literal-token work is done; the broader expression work it triggered is tracked under Phase 0 below.
+3. **Fix `inline_template` rule** — make it `optional(seq($.reference, ':')) $._expression` — unblocks one class of testcases (`NR_RRC_Templates.ttcn` parameterized templates). **Status:** still on the original `seq($.reference, ':', $._expression)` (grammar.js line 665).
+4. **Fix the 3 known-failing corpus tests** (`class_type`, `component_type`, `configuration` produce wrong modifiers/visibility) — also tracked here as the canonical Phase 5 cleanup item (P5.1 was removed to avoid duplication; this is the same task, scoped to "make the parser emit the spec-correct modifiers/visibility ordering"). **Status:** expected S-expression outputs were added (commit `564c404`) but `tree-sitter test` still reports them failing — needs grammar-side fix.
+5. **Wire `import ... language "..."` clause** — allows `import from X language "ASN.1:2002" all with {encode "..."}` to parse cleanly. **Status:** done (commit `12538b1`); `language_spec` is wired into `import_definition`.
 
 ---
 
@@ -22,17 +24,17 @@ Land these as standalone PRs before the big phases to fix the most-cited real-wo
 
 **Goal**: Expression parsing works for any real-world expression. New corpus file `expressions.txt`.
 
-| Task | Description | Effort |
-|------|-------------|--------|
-| **E0.1** | Rebuild the expression precedence chain as the spec requires (XorExpression → AndExpression → NotExpression → EqualExpression → RelExpression → ShiftExpression → BitOrExpression → BitXorExpression → BitAndExpression → BitNotExpression → AddExpression → MulExpression → UnaryExpression → Primary). Keep `PREC.*` for precedence numbers. | 1 day |
-| **E0.2** | Extend `Primary`: parenthesized expr, predefined value, presence-check ops (`ispresent`/`isbound`/`isvalue`/`ischosen`), function call. | 1 day |
-| **E0.3** | Add **predefined-function call** — a dedicated rule matching all ~40 predefined function names from Annex C plus allowing any identifier that resolves to one. | 0.5 day |
-| **E0.4** | Add **compound expressions**: assignment notation `{ field := expr, … }` and list notation `{ expr, … }` — these are also `Primary`. | 1 day |
-| **E0.5** | Add `Minus` (`-`) placeholder for uninitialized fields. | 0.5 day |
-| **E0.6** | Add **decoded field reference** `=> Type`. | 0.5 day |
-| **E0.7** | Add `infinity`, `-infinity`, `not_a_number` reserved words to identifiers/keywords; ensure they aren't matched as `Identifier` in expression contexts. | 0.5 day |
-| **E0.8** | Add `match`, `valueof`, `omit`, `present` template operations as `Primary` rules. | 1 day |
-| **E0.9** | Add `ConstantExpression` as a stricter form of `Expression` (no function calls, no mutable vars). | 0.5 day |
+| Task | Description | Effort | Status |
+|------|-------------|--------|--------|
+| **E0.1** | Rebuild the expression precedence chain as the spec requires (XorExpression → AndExpression → NotExpression → EqualExpression → RelExpression → ShiftExpression → BitOrExpression → BitXorExpression → BitAndExpression → BitNotExpression → AddExpression → MulExpression → UnaryExpression → Primary). Keep `PREC.*` for precedence numbers. | 1 day | ⬜ open |
+| **E0.2** | Extend `Primary`: parenthesized expr, predefined value, presence-check ops (`ispresent`/`isbound`/`isvalue`/`ischosen`), function call. | 1 day | ✅ done (commit `c788c4a`: `parenthesized_expression`, `presence_check`, `predefined_func_call`); `expressions.txt` covers it |
+| **E0.3** | Add **predefined-function call** — a dedicated rule matching all ~40 predefined function names from Annex C plus allowing any identifier that resolves to one. | 0.5 day | ✅ done (commit `c788c4a`: `predefined_func_call` rule) |
+| **E0.4** | Add **compound expressions**: assignment notation `{ field := expr, … }` and list notation `{ expr, … }` — these are also `Primary`. | 1 day | ✅ done (commit `df061db`: `compound_value`) |
+| **E0.5** | Add `Minus` (`-`) placeholder for uninitialized fields. | 0.5 day | ⬜ open |
+| **E0.6** | Add **decoded field reference** `=> Type`. | 0.5 day | ✅ done (commit `c788c4a`: `decoded_field_reference`) |
+| **E0.7** | Add `infinity`, `-infinity`, `not_a_number` reserved words to identifiers/keywords; ensure they aren't matched as `Identifier` in expression contexts. | 0.5 day | 🔄 partial — `infinity` and `not_a_number` added; **`-infinity` still missing** (see QW1) |
+| **E0.8** | Add `match`, `valueof`, `omit`, `present` template operations as `Primary` rules. | 1 day | ✅ done (commit `df061db`: template operations on Primary) |
+| **E0.9** | Add `ConstantExpression` as a stricter form of `Expression` (no function calls, no mutable vars). | 0.5 day | ✅ done (commit `df061db`: `ConstantExpression`) |
 
 **Tests**: `test/corpus/expressions.txt` with ~30 tests across operators, primaries, predefined fns, compound values.
 
@@ -66,12 +68,12 @@ Land these as standalone PRs before the big phases to fix the most-cited real-wo
 | **S2.1** | Add `setverdict` / `getverdict`. | 0.5 day |
 | **S2.2** | Add `log` / `action` statements (variadic expressions). | 0.5 day |
 | **S2.3** | Add **shorthand assignment** `x++` / `x--`. | 0.5 day |
-| **S2.4** | Add **port dot-ops**: `.send(expr)`, `.receive`, `.trigger`, `.call`, `.reply`, `.raise`, `.catch`, `.getcall`, `.getreply`, `.check`, `.clear`, `.start`, `.stop`, `.halt`, `.checkstate`. | 2 days |
+| **S2.4** | Add **port dot-ops**: `.send(expr)`, `.receive`, `.trigger`, `.call(sig, value [, timer])` (with optional timer parameter for procedure-based calls), `.reply`, `.raise`, `.catch`, `.getcall`, `.getreply`, `.check`, `.clear`, `.start`, `.stop`, `.halt`, `.checkstate`. | 2 days |
 | **S2.5** | Add **config ops**: `connect(…)`, `map(…) [param(…)]`, `disconnect`, `unmap [param(…)]`. Include `port_ref` grammar (`Component.port` chain). | 1.5 days |
 | **S2.6** | Add **component lifetime ops**: `comp.create(…) [alive]`, `.start(f(…))`, `.stop`, `.done` / `.killed` (with optional redirect). | 1.5 days |
 | **S2.7** | Add **activate/default** ops: `activate(a(…))`, `deactivate`, `repeat`. | 0.5 day |
 | **S2.8** | Add **timer ops**: `timer.start(expr)`, `timer.read`, `timer.stop`, `timer.running`, `timer.timeout`. | 1 day |
-| **S2.9** | Add `testcase.stop` and `execute(…)` for testcase invocations. | 0.5 day |
+| **S2.9** | Add `testcase.stop`, `execute(…)`, and the **test-component `call`** operation (spec §21.3.10 — `call(sig, value, [timer])` distinct from port `.call`). | 0.5 day |
 
 **Tests**: `test/corpus/communication.txt`, `test/corpus/statements.txt`, `test/corpus/timers.txt`.
 
@@ -83,14 +85,17 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 
 | Task | Description | Effort |
 |------|-------------|--------|
-| **TP3.1** | Add `NestedMapDef` (`map from K to V` as field type). | 0.5 day |
+| **TP3.1** | Add `NestedMapDef` (`map from K to V` as field type). Spec A.1.6.1.1 (line 22115) defines `MapDef ::= NestedMapDef Identifier` and `NestedMapDef` is a valid `TypeOrNestedTypeDef` — required for fields like `record { map from K to V f }`. | 0.5 day |
 | **TP3.2** | Add `anytype` predefined type. | 0.5 day |
-| **TP3.3** | Add `port Type Name[expr]` port instance in component body — replace `port_decl` / parameter / etc. with a proper `PortInstance` rule. | 1 day |
+| **TP3.3** | Add `port Type Name[expr]` port instance in component body — replace `port_decl` / parameter / etc. with a proper `PortInstance` rule (spec A.1.6.1.1 line 22230 `PortInstance ::= PortKeyword ExtendedIdentifier PortElement`). | 1 day |
 | **TP3.4** | Extend `record_of_type` to support length-restricted subtypes: `type record length(…) of T Name;`. | 0.5 day |
 | **TP3.5** | Add `multityped modulepar { … ; … }` block form. | 0.5 day |
-| **TP3.6** | Add `universal charstring` type. | 0.5 day |
+| **TP3.6** | Add `universal charstring` type, and the standalone `universal` keyword for parameter typing (gap M4). | 0.5 day |
 | **TP3.7** | Implement `mode` body (currently empty TODO at grammar.js:450). | 0.5 day |
-| **TP3.8** | Improve modifier regex `@\w+` to specifically enumerate the spec's modifier set. | 0.5 day |
+| **TP3.8** | Improve modifier regex `@\w+` to specifically enumerate the spec's modifier set (Table A.4: `@abstract`, `@control`, `@decoded`, `@default`, `@deterministic`, `@fuzzy`, `@index`, `@lazy`, `@local`, `@nocase`, `@nodefault`). Also wire `@default` onto `union_field` (gap A4). | 0.5 day |
+| **TP3.9** | Add **pattern subtyping** for `charstring` and `universal charstring`: `type charstring X (pattern "abc*xyz")` (gap A3; spec §6.1.2.6 pattern restriction). | 0.5 day |
+| **TP3.10** | Add `import from … except { … }` recursive excepts for import groups: `import group X except { Y, Z }` (gap H6). | 0.5 day |
+| **TP3.11** | Allow `_` inside numeric literals: `1_000_000`, `1_000.5`, `1_2E3_4` (gap L1; spec A.443–446). Update `number` token regex and re-run `literals.txt` corpus (currently 1 failing test on `Invalid number` — may be a side-effect of this work). | 0.5 day |
 
 ---
 
@@ -112,11 +117,12 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 
 | Task | Description | Effort |
 |------|-------------|--------|
-| **P5.1** | Resolve the 3 known-failing corpus tests (`class_type`, `component_type`, `configuration` produce wrong modifiers/visibility) by walking the BNF more strictly. | 0.5 day |
-| **P5.2** | Document remaining GLR conflicts, ensure each is listed in `conflicts:` and documented. | 0.5 day |
-| **P5.3** | Clean up `lexical` / `extras` / `inline` / external scanner placeholders referenced by `binding.gyp`, `bindings/rust/build.rs`, `Package.swift`, `bindings/go/binding.go`. | 1 day |
-| **P5.4** | Bump version to `0.1.0`, update root `README.md` to remove "WIP" checkmarks for completed sections, link to `docs/`. | 0.5 day |
-| **P5.5** | Reconcile version mismatch (`package.json` says `1.0.0`, others say `0.0.1`) — pick a single source of truth. | 0.5 day |
+| **P5.1** | Document remaining GLR conflicts, ensure each is listed in `conflicts:` and documented. | 0.5 day |
+| **P5.2** | Clean up `lexical` / `extras` / `inline` / external scanner placeholders referenced by `binding.gyp`, `bindings/rust/build.rs`, `Package.swift`, `bindings/go/binding.go`. | 1 day |
+| **P5.3** | Bump version to `0.1.0`, update root `README.md` to remove "WIP" checkmarks for completed sections, link to `docs/`. | 0.5 day |
+| **P5.4** | Reconcile version mismatch (`package.json` says `1.0.0`, others say `0.0.1`) — pick a single source of truth. | 0.5 day |
+
+> The 3 known-failing corpus tests (`class_type`, `component_type`, `configuration`) are tracked under Quick Win #4 — not duplicated here.
 
 ---
 
@@ -124,26 +130,50 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 
 | Phase | Effort | Critical path |
 |-------|--------|---------------|
-| Quick Wins | 1–2 days | no (parallel) |
-| 0 — Expressions | 5–7 days | **yes** (everything builds on it) |
+| Quick Wins | 1.5–2 days (3 of 5 remain: QW1 `-infinity`, QW3 `inline_template`, QW4 corpus fixes) | no (parallel) |
+| 0 — Expressions | 2–3 days remaining (E0.1, E0.5, E0.7 of 9 tasks) | **yes** (everything builds on it) |
 | 1 — Templates | 7–10 days | **yes** |
 | 2 — Statements/Comm | 7–10 days | **yes** |
-| 3 — Types/Ports | 3–5 days | mostly parallel |
+| 3 — Types/Ports | 4–6 days (3 new tasks TP3.9, TP3.10, TP3.11) | mostly parallel |
 | 4 — Validation | 5–7 days | **yes** (regression-protect) |
-| 5 — Polish | 3–5 days | cleanup |
-| **Total** | **30–45 working days** | — |
+| 5 — Polish | 2.5–4 days (P5.1 deduped into QW4) | cleanup |
+| **Total** | **29–42 working days remaining** | — |
 
 ---
 
 ## Risks & Open Questions
 
-- **GLR conflict explosion**: each new alternative in `_expression` and `_statement` risks creating new conflicts. Mitigate by keeping alternatives narrow and using `prec.dynamic` + named precedence where helpful. Expect to **add 5–15 new `conflicts:` entries through the project**.
-- **Numeric literals with underscores**: spec allows `_` inside numbers (e.g., `1_000_000`). Current grammar only allows digits + `.` + `E` suffix.
+- **GLR conflict explosion**: each new alternative in `_expression` and `_statement` risks creating new conflicts. Mitigate by keeping alternatives narrow and using `prec.dynamic` + named precedence where helpful. Expect to **add 5–15 new `conflicts:` entries through the project**. (`timer_decl` and `port_decl` GLR conflicts were already declared on `feature/quick-wins-batch-1`; expect more from Phase 1 / 2 work.)
+- **Numeric literals with underscores** (gap L1): spec allows `_` inside numbers (e.g., `1_000_000`). Tracked as TP3.11.
 - **Char/Universal char quadruples** `char(0,0,1,113)` and **USI-like** `char(U+0171)`: spec defines these; may punt to a token rule.
 - **`TemplateInstance` overlap with `Expression`**: the spec uses `TemplateInstance` where a value-only expression is allowed when a value parameter is on the receiving side; the grammar should accept the broader set and leave semantic validation to user tooling.
-- **Patterns** (`pattern "..."`) are very rich; recommended to capture as a regex token to keep grammar tractable.
-- **Real-world ASN.1 imports**: many files use `language "ASN.1:2002"` with `encode "UNALIGNED_PER_..."` in `import … all with {…}`. Fixing import-with-language-with-encoding is a quick win.
+- **Patterns** (`pattern "..."`) are very rich; recommended to capture as a regex token to keep grammar tractable. Subtype-level pattern (TP3.9) and template-body pattern (T1.6) are distinct tasks.
+- **Real-world ASN.1 imports**: many files use `language "ASN.1:2002"` with `encode "UNALIGNED_PER_..."` in `import … all with {…}`. **Done** on `feature/quick-wins-batch-1` (QW5 / commit `12538b1`).
 - **Test corpus discipline**: thematic test files work well — keep adding to existing files (`behaviours.txt`, `templates.txt`, `statements.txt`, …) rather than creating new top-level files (see `test/corpus/AGENTS.md`).
+- **`infinity` / `-infinity` expression parsing**: spec treats `infinity` and `-infinity` as a single float value pair (spec C.1.9 line 24943). The grammar must distinguish the unary-minus case (legitimate in expression context) from the bare `-infinity` literal form. Currently only `infinity` and `not_a_number` are reserved (grammar.js line 1136); `-infinity` parses only when the existing `-` unary operator is applied to the `infinity` token. Verify this is sufficient by running `tree-sitter parse` on `HTTP_ASP_TypeDefs.ttcn` line 30 once grammar changes are in.
+- **`???` not-implemented identifier**: spec A.1.5 (Table A.2) lists `???` as a special terminal. Not currently a token in the grammar; deferred to post-1.0 unless real-world files demand it.
+
+---
+
+## Deferred to post-1.0
+
+These are 🟡-severity gaps from `gap-analysis.md` that are explicitly out of scope for the 0.1.0 grammar. They are documented so future contributors know they exist and what the work would be; not required for the grammar to parse the 3GPP conformance testsuite.
+
+| Gap | Description | Why deferred |
+|-----|-------------|--------------|
+| **L2** | `Bstring` allowance of whitespace + line continuations (`'foo\<LF>bar'B`). Spec A.447. | Rare in real-world TTCN; regex tightening can wait. |
+| **L3** | `FreeText` (used in `log` / `action` / `with`) is very lax (ExtendedAlphaNum); current `charstring` regex is narrower. Spec A.461. | Current grammar accepts most real-world cases; tightening is an edge case. |
+| **L4** | `?` and `*` as tokens; reserved keywords — current grammar may misclassify `*` as multiply-op in some positions. Spec A.467–471. | Wildcard use is in template bodies (T1.5); after T1.5 lands, re-evaluate. |
+| **M3** | `GetAttributeOp` — `TypeOrTemplate.encode`, `.variant`, `.display`. Spec A.560. | Used in attributes and `external` functions; not seen in conformance corpus. |
+| **M5** | `in` / `out` / `inout` parameter directions completeness. Spec A.466–468. | Current `formal_parameter` covers most cases; spec edge cases can wait. |
+| **G1** | Full signature def grammar — `signature Foo() return T exception (E, F)`. Spec §14 / A.183. | Partial in current grammar; `exception` clause is rare in real-world code. |
+| **G5** | `all` port message list (deprecated but still in use). Spec A.62. | Partial; deprecation path means the deprecated form will go away eventually. |
+| **D7** | `done` / `killed` (component lifetime) with optional redirect. Spec §21.3 / A.279. | **Re-evaluate**: S2.6 mentions this; confirm it covers the redirect form once S2.6 lands. |
+| **F3** | `DerivedTemplateBody` (`modifies` clause form) — `template Foo := modifies Base.x := …` style. Spec §15.5 / A.152. | Partial in current grammar; full form is rare. |
+| **F12** | Subset / Superset match. Spec A.135. | T1.5 covers `?`/`*`/range; subset/superset can land in T1.5 or as T1.11. |
+| **F13** | `permutation` keyword. Spec A.140. | Same as F12. |
+| **K1** | `mode` definition body (mode spec) — TODO at grammar.js:450. Spec A.498–507. | Tracked as TP3.7 — **not** deferred. (Listed here for cross-reference only.) |
+| **K2** | `action(…)` external action. Spec §25 / A.499. | Tracked under S2.2. (Cross-reference only.) |
 
 ---
 
