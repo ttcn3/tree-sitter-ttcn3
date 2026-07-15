@@ -590,6 +590,7 @@ module.exports = grammar({
       $.not_expression,
       $.equal_expression,
       $.rel_expression,
+      $.range_expression,
       $.shift_expression,
       $.bit_or_expression,
       $.bit_xor_expression,
@@ -800,6 +801,15 @@ module.exports = grammar({
     length_attribute: $ => seq('length', '(', $._expression, ')'),
     // Range: `( expr .. expr )` — spec B.1.1. May conflict with template_values; GLR resolves.
     range: $ => seq('(', $._expression, '..', $._expression, ')'),
+    // ValueRange: `expr .. expr` (unparenthesized) — spec A.1.5 / B.1.1.
+    // Used in integer/float subtype value constraints: `type integer X (0 .. 100)`.
+    // The `(` `)` around it is the template_values rule; this rule matches the
+    // inner expression.
+    range_expression: $ => prec.left(PREC.relational, seq(
+      field('lower', $._expression),
+      '..',
+      field('upper', $._expression),
+    )),
     // Remaining matching symbol function-like constructs (spec B.1.4–B.1.7).
     complement: $ => seq('complement', '(', $._expression, ')'),
     subset: $ => seq('subset', '(', $._expression, ')'),

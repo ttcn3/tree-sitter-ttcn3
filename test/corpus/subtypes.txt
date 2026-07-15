@@ -271,3 +271,47 @@ module M {
         (nested_type
           (reference))
         (name)))))
+
+===
+Integer subtype with unparenthesized range
+===
+module M {
+  type integer UInt_Type (0 .. infinity);
+  type integer UInt8_Type (0 .. 255);
+  type float PosFloat (0.0 .. infinity);
+}
+---
+
+(source_file
+  (module
+    (name)
+    (subtype
+      (nested_type
+        (reference))
+      (name)
+      (template_values
+        (range_expression
+          (primary
+            (number))
+          (primary
+            (reserved_number)))))
+    (subtype
+      (nested_type
+        (reference))
+      (name)
+      (template_values
+        (range_expression
+          (primary
+            (number))
+          (primary
+            (number)))))
+    (subtype
+      (nested_type
+        (reference))
+      (name)
+      (template_values
+        (range_expression
+          (primary
+            (number))
+          (primary
+            (reserved_number)))))))
