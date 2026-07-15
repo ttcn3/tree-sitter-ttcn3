@@ -1,0 +1,193 @@
+===
+Setverdict - bare verdict
+===
+module M {
+  testcase tc() runs on C { setverdict(pass) }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (setverdict_stmt
+          (verdict_literal))))))
+
+===
+Setverdict - all verdict values parse
+===
+module M {
+  testcase tc() runs on C {
+    setverdict(pass)
+    setverdict(fail)
+    setverdict(inconc)
+    setverdict(none)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (setverdict_stmt
+          (verdict_literal))
+        (setverdict_stmt
+          (verdict_literal))
+        (setverdict_stmt
+          (verdict_literal))
+        (setverdict_stmt
+          (verdict_literal))))))
+
+===
+Setverdict - with log args
+===
+module M {
+  testcase tc() runs on C {
+    setverdict(pass, "step 1 ok", x)
+    setverdict(fail, "got ", v, " expected ", 5)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (setverdict_stmt
+          (verdict_literal)
+          (primary
+            (charstring))
+          (primary
+            (reference)))
+        (setverdict_stmt
+          (verdict_literal)
+          (primary
+            (charstring))
+          (primary
+            (reference))
+          (primary
+            (charstring))
+          (primary
+            (number)))))))
+
+===
+Getverdict - bare keyword
+===
+module M {
+  function f() return verdict { return getverdict }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (return_type
+        (nested_type
+          (reference)))
+      (block
+        (return_stmt)
+        (getverdict_stmt)))))
+
+===
+Getverdict - in expression context
+===
+module M {
+  testcase tc() runs on C {
+    if (getverdict == pass) { setverdict(pass) }
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (if_stmt
+          (equal_expression
+            (primary
+              (reference))
+            (primary
+              (verdict_literal)))
+          (block
+            (setverdict_stmt
+              (verdict_literal))))))))
+
+===
+Log statement - variadic expressions
+===
+module M {
+  testcase tc() runs on C {
+    log("step 1 started")
+    log("x=", x, " y=", y)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (log_stmt
+          (primary
+            (charstring)))
+        (log_stmt
+          (primary
+            (charstring))
+          (primary
+            (reference))
+          (primary
+            (charstring))
+          (primary
+            (reference)))))))
+
+===
+Action statement - variadic
+===
+module M {
+  testcase tc() runs on C {
+    action("checkpoint reached")
+    action("value=", v)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (action_stmt
+          (primary
+            (charstring)))
+        (action_stmt
+          (primary
+            (charstring))
+          (primary
+            (reference)))))))

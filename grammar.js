@@ -890,6 +890,10 @@ module.exports = grammar({
       $.break_stmt,
       $.continue_stmt,
       $.return_stmt,
+      $.setverdict_stmt,
+      $.getverdict_stmt,
+      $.log_stmt,
+      $.action_stmt,
       $.if_stmt,
       $.select_stmt,
       $.select_union_stmt,
@@ -923,6 +927,19 @@ module.exports = grammar({
     break_stmt: $ => seq('break', optional($.name)),
     continue_stmt: $ => seq('continue', optional($.name)),
     return_stmt: $ => seq('return', optional($._expression)),
+    // S2.1: spec rule 496 SetLocalVerdict = setverdict "(" SingleExpression {"," LogItem} [","] ")"
+    setverdict_stmt: $ => seq(
+      'setverdict', '(',
+      field('verdict', $.verdict_literal),
+      field('log_args', optional(seq(',', sepBy1(',', $._expression)))),
+      ')',
+    ),
+    // S2.1: spec rule 498 GetLocalVerdict = "getverdict" (bare keyword, used as Expression)
+    getverdict_stmt: $ => 'getverdict',
+    // S2.2: spec rule 499 SUTStatements = action "(" ActionText {StringOp ActionText} ")"
+    action_stmt: $ => seq('action', '(', sepBy1(',', $._expression), ')'),
+    // S2.2: spec rule 569 LogStatement = log "(" LogItem {"," LogItem} [","] ")"
+    log_stmt: $ => seq('log', '(', sepBy(',', $._expression), ')'),
 
     if_stmt: $ => seq(
       'if', '(',
