@@ -5,7 +5,8 @@ Integers
 ---
 
 (source_file
-  (number))
+  (primary
+    (number)))
 
 ===
 Floats
@@ -14,7 +15,8 @@ Floats
 ---
 
 (source_file
-  (number))
+  (primary
+    (number)))
 
 ===
 Invalid number
@@ -23,6 +25,8 @@ Invalid number
 123abc
 ---
 
+
+
 ===
 Infinity
 ===
@@ -30,7 +34,8 @@ infinity
 ---
 
 (source_file
-  (reserved_number))
+  (primary
+    (reserved_number)))
 
 ===
 Negative infinity
@@ -40,4 +45,5 @@ Negative infinity
 
 (source_file
   (unary_expression
-    (reserved_number)))
+    (primary
+      (reserved_number))))

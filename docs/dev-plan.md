@@ -4,7 +4,7 @@
 
 This plan completes the tree-sitter TTCN-3 grammar from its current WIP state to a grammar that parses real-world 3GPP conformance TTCN code. See [`gap-analysis.md`](./gap-analysis.md) for the underlying inventory.
 
-> **Branch status (2026-07-15):** Quick Wins 3 of 5 done (QW1 done, QW3 **blocked — needs redesign**, QW4 done, QW5 done); Phase 0 expressions ~6 of 9 tasks done (E0.2, E0.3, E0.4, E0.6, E0.8, E0.9 landed; E0.1 precedence chain, E0.5 `Minus` placeholder still open; E0.7 `-infinity` now closed via QW1). 0 corpus tests failing (34/34 pass). See inline status notes per task.
+> **Branch status (2026-07-15):** Quick Wins 3 of 5 done (QW1 done, QW3 **blocked — needs redesign**, QW4 done, QW5 done); Phase 0 expressions ~7 of 9 tasks done (E0.1, E0.2, E0.3, E0.4, E0.6, E0.8, E0.9 landed; E0.5 `Minus` placeholder still open; E0.7 `-infinity` closed via QW1). 0 corpus tests failing (34/34 pass). See inline status notes per task.
 
 ---
 
@@ -26,7 +26,7 @@ Land these as standalone PRs before the big phases to fix the most-cited real-wo
 
 | Task | Description | Effort | Status |
 |------|-------------|--------|--------|
-| **E0.1** | Rebuild the expression precedence chain as the spec requires (XorExpression → AndExpression → NotExpression → EqualExpression → RelExpression → ShiftExpression → BitOrExpression → BitXorExpression → BitAndExpression → BitNotExpression → AddExpression → MulExpression → UnaryExpression → Primary). Keep `PREC.*` for precedence numbers. | 1 day | ⬜ open |
+| **E0.1** | Rebuild the expression precedence chain as the spec requires (XorExpression → AndExpression → NotExpression → EqualExpression → RelExpression → ShiftExpression → BitOrExpression → BitXorExpression → BitAndExpression → BitNotExpression → AddExpression → MulExpression → UnaryExpression → Primary). Keep `PREC.*` for precedence numbers. | 1 day | ✅ done (2026-07-15) — split the single `binary_expression` / `unary_expression` rules into 14 spec-named chain rules plus `primary`. Each rule matches only with its operator; operands are `_expression` so PREC.* drives associativity. `_expression` is a flat choice of all 15 levels. Added `or_expression` (the plan's chain listed 14; `or` is at PREC.logical_or=20 in the existing PREC table and was preserved). Real-world error count on `HTTP_ASP_TypeDefs.ttcn` unchanged (2 errors before/after — pre-existing WIP issues, not regressions). All 34 corpus tests pass; test S-expressions regenerated via `tree-sitter test --update`. Test churn: `expressions.txt` (236 lines), `conflicts.txt` (42), `literals.txt` (14) — mostly the new `(primary (number))` wrapping around literals. |
 | **E0.2** | Extend `Primary`: parenthesized expr, predefined value, presence-check ops (`ispresent`/`isbound`/`isvalue`/`ischosen`), function call. | 1 day | ✅ done (commit `c788c4a`: `parenthesized_expression`, `presence_check`, `predefined_func_call`); `expressions.txt` covers it |
 | **E0.3** | Add **predefined-function call** — a dedicated rule matching all ~40 predefined function names from Annex C plus allowing any identifier that resolves to one. | 0.5 day | ✅ done (commit `c788c4a`: `predefined_func_call` rule) |
 | **E0.4** | Add **compound expressions**: assignment notation `{ field := expr, … }` and list notation `{ expr, … }` — these are also `Primary`. | 1 day | ✅ done (commit `df061db`: `compound_value`) |
@@ -131,13 +131,13 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 | Phase | Effort | Critical path |
 |-------|--------|---------------|
 | Quick Wins | 0.5 day remaining (1 of 5 open: **QW3 `inline_template` blocked — needs redesign**) | no (parallel) |
-| 0 — Expressions | 2–3 days remaining (E0.1, E0.5, E0.7 of 9 tasks) | **yes** (everything builds on it) |
+| 0 — Expressions | 0.5 day remaining (E0.5 `Minus` placeholder of 9 tasks; E0.1, E0.7 closed) | **yes** (everything builds on it) |
 | 1 — Templates | 7–10 days | **yes** |
 | 2 — Statements/Comm | 7–10 days | **yes** |
 | 3 — Types/Ports | 4–6 days (3 new tasks TP3.9, TP3.10, TP3.11) | mostly parallel |
 | 4 — Validation | 5–7 days | **yes** (regression-protect) |
 | 5 — Polish | 2.5–4 days (P5.1 deduped into QW4) | cleanup |
-| **Total** | **28–41 working days remaining** | — |
+| **Total** | **27–40 working days remaining** | — |
 
 ---
 

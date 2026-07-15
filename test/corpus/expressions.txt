@@ -13,26 +13,30 @@ function i() { return 12345 }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (number))))
+        (primary
+          (number)))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
         (unary_expression
-          operand: (number)))))
+          operand: (primary
+            (number))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (number))))
+        (primary
+          (number)))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (number)))))
+        (primary
+          (number))))))
 
 ===
 Additive and multiplicative
@@ -48,25 +52,31 @@ function h() { return "foo" & "bar" }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (binary_expression
-          left: (number)
-          right: (number)))))
+        (add_expression
+          left: (primary
+            (number))
+          right: (primary
+            (number))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (binary_expression
-          left: (number)
-          right: (number)))))
+        (mul_expression
+          left: (primary
+            (number))
+          right: (primary
+            (number))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (binary_expression
-          left: (charstring)
-          right: (charstring))))))
+        (add_expression
+          left: (primary
+            (charstring))
+          right: (primary
+            (charstring)))))))
 
 ===
 Logical operators
@@ -83,32 +93,39 @@ function i() { return not flag }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (binary_expression
-          left: (reference)
-          right: (reference)))))
+        (and_expression
+          left: (primary
+            (reference))
+          right: (primary
+            (reference))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (binary_expression
-          left: (reference)
-          right: (reference)))))
+        (or_expression
+          left: (primary
+            (reference))
+          right: (primary
+            (reference))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (binary_expression
-          left: (reference)
-          right: (reference)))))
+        (xor_expression
+          left: (primary
+            (reference))
+          right: (primary
+            (reference))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (unary_expression
-          operand: (reference))))))
+        (not_expression
+          operand: (primary
+            (reference)))))))
 
 ===
 Precedence: multiply before add
@@ -122,11 +139,14 @@ function f() { return 5 + 3 * 2 }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (binary_expression
-          left: (number)
-          right: (binary_expression
-            left: (number)
-            right: (number)))))))
+        (add_expression
+          left: (primary
+            (number))
+          right: (mul_expression
+            left: (primary
+              (number))
+            right: (primary
+              (number))))))))
 
 ===
 Parenthesized expressions
@@ -140,12 +160,16 @@ function f() { return (5 + 3) * 2 }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (binary_expression
-          left: (parenthesized_expression
-            (binary_expression
-              left: (number)
-              right: (number)))
-          right: (number))))))
+        (mul_expression
+          left: (primary
+            (parenthesized_expression
+              (add_expression
+                left: (primary
+                  (number))
+                right: (primary
+                  (number)))))
+          right: (primary
+            (number)))))))
 
 ===
 Predefined functions
@@ -162,34 +186,43 @@ function i() { return int2char(65) }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (predefined_func_call
-          function: (predefined_func_name)
-          arguments: (reference)))))
+        (primary
+          (predefined_func_call
+            function: (predefined_func_name)
+            arguments: (primary
+              (reference)))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (predefined_func_call
-          function: (predefined_func_name)
-          arguments: (reference)
-          arguments: (reference)))))
+        (primary
+          (predefined_func_call
+            function: (predefined_func_name)
+            arguments: (primary
+              (reference))
+            arguments: (primary
+              (reference)))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (predefined_func_call
-          function: (predefined_func_name)
-          arguments: (reference)))))
+        (primary
+          (predefined_func_call
+            function: (predefined_func_name)
+            arguments: (primary
+              (reference)))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (predefined_func_call
-          function: (predefined_func_name)
-          arguments: (number))))))
+        (primary
+          (predefined_func_call
+            function: (predefined_func_name)
+            arguments: (primary
+              (number))))))))
 
 ===
 Presence checks
@@ -205,22 +238,28 @@ function h() { return isvalue(t) }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (presence_check
-          operand: (reference)))))
+        (primary
+          (presence_check
+            operand: (primary
+              (reference)))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (presence_check
-          operand: (reference)))))
+        (primary
+          (presence_check
+            operand: (primary
+              (reference)))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (presence_check
-          operand: (reference))))))
+        (primary
+          (presence_check
+            operand: (primary
+              (reference))))))))
 
 ===
 Decoded field reference
@@ -235,19 +274,21 @@ function g() { return payload => OctetString }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (decoded_field_reference
-          operand: (reference)
-          type: (nested_type
-            (reference))))))
+        (primary
+          (decoded_field_reference
+            operand: (reference)
+            type: (nested_type
+              (reference)))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (decoded_field_reference
-          operand: (reference)
-          type: (nested_type
-            (reference)))))))
+        (primary
+          (decoded_field_reference
+            operand: (reference)
+            type: (nested_type
+              (reference))))))))
 
 ===
 Composite literal (list notation)
@@ -262,18 +303,25 @@ function g() { return { "a", "b" } }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (composite_literal
-          (number)
-          (number)
-          (number)))))
+        (primary
+          (composite_literal
+            (primary
+              (number))
+            (primary
+              (number))
+            (primary
+              (number)))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (composite_literal
-          (charstring)
-          (charstring))))))
+        (primary
+          (composite_literal
+            (primary
+              (charstring))
+            (primary
+              (charstring))))))))
 
 ===
 Compound value (assignment notation)
@@ -288,21 +336,27 @@ function g() { return { host := "", portField := c_defaultSipPort } }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (compound_value
-          field: (name)
-          value: (number)
-          field: (name)
-          value: (number)))))
+        (primary
+          (compound_value
+            field: (name)
+            value: (primary
+              (number))
+            field: (name)
+            value: (primary
+              (number)))))))
   (func
     name: (name)
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (compound_value
-          field: (name)
-          value: (charstring)
-          field: (name)
-          value: (reference))))))
+        (primary
+          (compound_value
+            field: (name)
+            value: (primary
+              (charstring))
+            field: (name)
+            value: (primary
+              (reference))))))))
 
 ===
 Complex combined expression
@@ -316,13 +370,17 @@ function f() { return lengthof(arr) > 0 and not ispresent(x) }
     parameters: (parameters)
     body: (block
       body: (return_stmt
-        (binary_expression
-          left: (binary_expression
-            left: (predefined_func_call
-              function: (predefined_func_name)
-              arguments: (reference))
-            right: (number))
-          right: (unary_expression
-            operand: (presence_check
-              operand: (reference))))))))
-
+        (and_expression
+          left: (rel_expression
+            left: (primary
+              (predefined_func_call
+                function: (predefined_func_name)
+                arguments: (primary
+                  (reference))))
+            right: (primary
+              (number)))
+          right: (not_expression
+            operand: (primary
+              (presence_check
+                operand: (primary
+                  (reference))))))))))

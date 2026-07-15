@@ -503,12 +503,112 @@ module.exports = grammar({
       ),
     ),
 
-_expression: $ => choice(
+    // Expression precedence chain per TTCN-3 spec (Annex B.1.4 / B.5).
+    // Order: or -> xor -> and -> not -> equal -> rel -> shift ->
+    //        bit_or -> bit_xor -> bit_and -> bit_not -> add -> mul -> unary -> primary.
+    // Each rule matches only with its operator; operands are `_expression`.
+    _expression: $ => choice(
+      $.or_expression,
+      $.xor_expression,
+      $.and_expression,
+      $.not_expression,
+      $.equal_expression,
+      $.rel_expression,
+      $.shift_expression,
+      $.bit_or_expression,
+      $.bit_xor_expression,
+      $.bit_and_expression,
+      $.bit_not_expression,
+      $.add_expression,
+      $.mul_expression,
       $.unary_expression,
-      $.binary_expression,
+      $.primary,
+    ),
+
+    or_expression: $ => prec.left(PREC.logical_or, seq(
+      field('left', $._expression),
+      field('operator', 'or'),
+      field('right', $._expression),
+    )),
+
+    xor_expression: $ => prec.left(PREC.logical_xor, seq(
+      field('left', $._expression),
+      field('operator', 'xor'),
+      field('right', $._expression),
+    )),
+
+    and_expression: $ => prec.left(PREC.logical_and, seq(
+      field('left', $._expression),
+      field('operator', 'and'),
+      field('right', $._expression),
+    )),
+
+    not_expression: $ => prec.right(PREC.logical_not, seq(
+      field('operator', 'not'),
+      field('operand', $._expression),
+    )),
+
+    equal_expression: $ => prec.left(PREC.equality, seq(
+      field('left', $._expression),
+      field('operator', choice('==', '!=')),
+      field('right', $._expression),
+    )),
+
+    rel_expression: $ => prec.left(PREC.relational, seq(
+      field('left', $._expression),
+      field('operator', choice('<', '>', '<=', '>=')),
+      field('right', $._expression),
+    )),
+
+    shift_expression: $ => prec.left(PREC.shift, seq(
+      field('left', $._expression),
+      field('operator', choice('<<', '>>', '<@', '@>')),
+      field('right', $._expression),
+    )),
+
+    bit_or_expression: $ => prec.left(PREC.bitwise_or, seq(
+      field('left', $._expression),
+      field('operator', 'or4b'),
+      field('right', $._expression),
+    )),
+
+    bit_xor_expression: $ => prec.left(PREC.bitwise_xor, seq(
+      field('left', $._expression),
+      field('operator', 'xor4b'),
+      field('right', $._expression),
+    )),
+
+    bit_and_expression: $ => prec.left(PREC.bitwise_and, seq(
+      field('left', $._expression),
+      field('operator', 'and4b'),
+      field('right', $._expression),
+    )),
+
+    bit_not_expression: $ => prec.right(PREC.bitwise_not, seq(
+      field('operator', 'not4b'),
+      field('operand', $._expression),
+    )),
+
+    add_expression: $ => prec.left(PREC.additive, seq(
+      field('left', $._expression),
+      field('operator', choice('+', '-', '&')),
+      field('right', $._expression),
+    )),
+
+    mul_expression: $ => prec.left(PREC.multiplicative, seq(
+      field('left', $._expression),
+      field('operator', choice('*', '/', 'mod', 'rem')),
+      field('right', $._expression),
+    )),
+
+    unary_expression: $ => prec.right(PREC.unary, seq(
+      field('operator', choice('+', '-', '!', '++', '--')),
+      field('operand', $._expression),
+    )),
+
+    primary: $ => choice(
       'null',
       'omit',
-      '-',
       $.boolean_literal,
       $.verdict_literal,
       $.number,
@@ -523,7 +623,6 @@ _expression: $ => choice(
       $.function_literal,
       $.inline_template,
       alias('testcase', $._identifier),
-
       $.decoded_field_reference,
       $.parenthesized_expression,
       $.presence_check,
@@ -566,70 +665,6 @@ _expression: $ => choice(
       seq(field('function', 'isbound'),   '(', field('operand', $._expression), ')'),
       seq(field('function', 'isvalue'),  '(', field('operand', $._expression), ')'),
       seq(field('function', 'ischosen'), '(', field('operand', $._expression), ',', field('variant', $._identifier), ')'),
-    ),
-
-    unary_expression: $ => choice(
-      prec.right(PREC.unary, seq(field('operator', choice('+', '-', '!', '++', '--')), field('operand', $._expression))),
-      prec.right(PREC.bitwise_not, seq(field('operator', 'not4b'), field('operand', $._expression))),
-      prec.right(PREC.logical_not, seq(field('operator', 'not'), field('operand', $._expression))),
-    ),
-
-    binary_expression: $ => choice(
-      prec.left(PREC.multiplicative, seq(
-        field('left', $._expression),
-        field('operator', choice('*', '/', 'mod', 'rem')),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.additive, seq(
-        field('left', $._expression),
-        field('operator', choice('+', '-', '&')),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.bitwise_and, seq(
-        field('left', $._expression),
-        field('operator', 'and4b'),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.bitwise_xor, seq(
-        field('left', $._expression),
-        field('operator', 'xor4b'),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.bitwise_or, seq(
-        field('left', $._expression),
-        field('operator', 'or4b'),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.shift, seq(
-        field('left', $._expression),
-        field('operator', choice('<<', '>>', '<@', '@>')),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.relational, seq(
-        field('left', $._expression),
-        field('operator', choice('<', '>', '<=', '>=')),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.equality, seq(
-        field('left', $._expression),
-        field('operator', choice('==', '!=')),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.logical_and, seq(
-        field('left', $._expression),
-        field('operator', 'and'),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.logical_xor, seq(
-        field('left', $._expression),
-        field('operator', 'xor'),
-        field('right', $._expression),
-      )),
-      prec.left(PREC.logical_or, seq(
-        field('left', $._expression),
-        field('operator', 'or'),
-        field('right', $._expression),
-      )),
     ),
 
     template_values: $ => seq(
