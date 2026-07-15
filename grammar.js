@@ -916,11 +916,16 @@ module.exports = grammar({
       $.template,
     ),
 
-    assignment: $ => seq(
-      field('left', $.reference),
-      ':=',
-      field('right', $._expression),
-    ),
+    assignment: $ => prec.left(choice(
+      seq(
+        field('left', $.reference),
+        ':=',
+        field('right', $._expression),
+      ),
+      // S2.3: rule 541 Assignment = ValueRef "++" | ValueRef "--"
+      seq(field('left', $.reference), '++'),
+      seq(field('left', $.reference), '--'),
+    )),
 
     label_stmt: $ => seq('label', $.name),
     goto_stmt: $ => seq('goto', $.name),
