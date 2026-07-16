@@ -869,3 +869,27 @@ module M {
           (primary
             (number))
           (ifpresent))))))
+
+===
+Template body trailing ifpresent (list notation)
+===
+module M {
+  template integer t := { 1, 2, 3 } ifpresent
+}
+---
+
+(source_file
+  (module
+    (name)
+    (template
+      (name)
+      (name)
+      (primary
+        (composite_literal
+          (primary
+            (number))
+          (primary
+            (number))
+          (primary
+            (number))
+          (ifpresent))))))

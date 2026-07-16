@@ -115,6 +115,11 @@ module.exports = grammar({
     // field/parameter list (where it is the existing field-level ifpresent).
     // Linear lookahead can't disambiguate. GLR.
     [$.compound_value],
+    // V1.10: same ExtraMatchingAttributes rule for composite_literal
+    // (list-notation template body `{ expr, … }`). When `ifpresent` follows
+    // a composite_literal's `}`, it may belong to the inner body or to the
+    // enclosing field/parameter list. Linear lookahead can't disambiguate.
+    [$.composite_literal],
     // TP3.9: 'pattern "X"' — the same shape appears in both the
     // subtype-constraint form `(pattern "X")` and the template-body matching
     // form `pattern "X"` (used inside template bodies). Distinguishable only
@@ -779,8 +784,12 @@ module.exports = grammar({
       ')',
     ),
 
+    // Composite literal (spec A.526 / B.1.2): list notation `{ expr, … }`.
+// Spec rule 95 ExtraMatchingAttributes allows a trailing `ifpresent` on
+// the body, matching V1.6 for compound_value.
     composite_literal: $ => seq(
       '{', sepBy1(',', $._expression), '}',
+      field('body_ifpresent', optional($.ifpresent)),
     ),
 
     // Compound value (Annex B / A.527): assignment notation `{ field := expr, … }`.
