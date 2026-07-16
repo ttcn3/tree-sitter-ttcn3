@@ -19,3 +19,89 @@ group bar {
   (group
     (name)
     (attributes)))
+
+===
+Record with nested map field
+===
+module M {
+  type record R { map from integer to charstring m };
+  type set S { map from charstring to integer indices };
+  type record Inner { integer x };
+  type record Outer { map from charstring to Inner contents };
+  type map from K to V M;
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (nested_map_type
+            (nested_type
+              (reference))
+            (nested_type
+              (reference))))
+        (name)))
+    (set_type
+      (name)
+      (field
+        (nested_type
+          (nested_map_type
+            (nested_type
+              (reference))
+            (nested_type
+              (reference))))
+        (name)))
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (nested_map_type
+            (nested_type
+              (reference))
+            (nested_type
+              (reference))))
+        (name)))
+    (subtype
+      (nested_type
+        (nested_map_type
+          (nested_type
+            (reference))
+          (nested_type
+            (reference))))
+      (name))))
+
+===
+Import - group recursive except
+===
+module M {
+  import from Mod {
+    group G;
+    group H except { type X; type Y; };
+    type T1;
+  };
+}
+---
+
+(source_file
+  (module
+    (name)
+    (import_definition
+      (reference)
+      (reference)
+      (reference)
+      (references
+        (reference))
+      (references
+        (reference))
+      (references
+        (reference)))))

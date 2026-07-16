@@ -48,3 +48,223 @@ testcase t() {}
     (name)
     (parameters)
     (block)))
+
+===
+Real-world: function with complex control flow
+===
+module RealWorldFunctions {
+  type component C {
+    port integer P;
+  }
+
+  function f_behavior(in integer p_count) runs on C {
+    var integer i := 0;
+    var boolean v_done := false;
+
+    if (p_count == 0) {
+      v_done := true;
+    }
+
+    for (i := 0;; i := i + 1) {
+      P.send(i);
+      if (i == 10) {
+        break;
+      }
+    }
+
+    while (v_done == false) {
+      i := i + 1;
+      if (i == p_count) {
+        v_done := true;
+      }
+    }
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (component_type
+      (name)
+      (block
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)))))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (reference)
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (boolean_literal))))
+        (if_stmt
+          (equal_expression
+            (primary
+              (reference))
+            (primary
+              (number)))
+          (block
+            (assignment
+              (reference)
+              (primary
+                (boolean_literal)))))
+        (for_stmt
+          (assignment
+            (reference)
+            (primary
+              (number)))
+          (assignment
+            (reference)
+            (add_expression
+              (primary
+                (reference))
+              (primary
+                (number))))
+          (block
+            (send_stmt
+              (reference)
+              (actual_parameters
+                (actual_parameter
+                  (primary
+                    (reference)))))
+            (if_stmt
+              (equal_expression
+                (primary
+                  (reference))
+                (primary
+                  (number)))
+              (block
+                (break_stmt)))))
+        (while_stmt
+          (equal_expression
+            (primary
+              (reference))
+            (primary
+              (boolean_literal)))
+          (block
+            (assignment
+              (reference)
+              (add_expression
+                (primary
+                  (reference))
+                (primary
+                  (number))))
+            (if_stmt
+              (equal_expression
+                (primary
+                  (reference))
+                (primary
+                  (reference)))
+              (block
+                (assignment
+                  (reference)
+                  (primary
+                    (boolean_literal)))))))))))
+
+===
+Real-world: HTTP function with template (omit) return type
+===
+module HTTP_CommonTemplates {
+  type record HttpMessageBody {
+    charstring text
+  }
+
+  function f_HttpContentLength(template (omit) HttpMessageBody p_MessageBody)
+    return template (omit) integer
+  {
+    var HttpMessageBody v_MessageBody;
+    var integer v_Length := 0;
+
+    if (p_MessageBody != omit) {
+      v_MessageBody := valueof(p_MessageBody);
+      v_Length := lengthof(v_MessageBody.text);
+      return v_Length;
+    }
+    return omit;
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_template
+            (template_restriction))
+          (nested_type
+            (reference))
+          (name)))
+      (return_type
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference)))
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (if_stmt
+          (equal_expression
+            (primary
+              (reference))
+            (primary))
+          (block
+            (assignment
+              (reference)
+              (primary
+                (predefined_func_call
+                  (predefined_func_name)
+                  (primary
+                    (reference)))))
+            (assignment
+              (reference)
+              (primary
+                (predefined_func_call
+                  (predefined_func_name)
+                  (primary
+                    (reference
+                      (selector_expression
+                        (reference)
+                        (reference)))))))
+            (return_stmt
+              (primary
+                (reference)))))
+        (return_stmt
+          (primary))))))

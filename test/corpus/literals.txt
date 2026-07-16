@@ -5,7 +5,8 @@ Integers
 ---
 
 (source_file
-  (number))
+  (primary
+    (number)))
 
 ===
 Floats
@@ -14,7 +15,8 @@ Floats
 ---
 
 (source_file
-  (number))
+  (primary
+    (number)))
 
 ===
 Invalid number
@@ -22,3 +24,118 @@ Invalid number
 ===
 123abc
 ---
+
+
+
+===
+Infinity
+===
+infinity
+---
+
+(source_file
+  (primary
+    (reserved_number)))
+
+===
+Negative infinity
+===
+-infinity
+---
+
+(source_file
+  (unary_expression
+    (primary
+      (reserved_number))))
+
+===
+Numbers with underscore separators
+===
+module M {
+  const integer x1 := 1_000_000;
+  const float x2 := 1_000.5_5;
+  const float x3 := 1_0E2_0;
+  const integer x4 := 1_2_3;
+}
+---
+
+(source_file
+  (module
+    (name)
+    (const_decl
+      (nested_type
+        (reference))
+      (declarator
+        (name)
+        (primary
+          (number))))
+    (const_decl
+      (nested_type
+        (reference))
+      (declarator
+        (name)
+        (primary
+          (number))))
+    (const_decl
+      (nested_type
+        (reference))
+      (declarator
+        (name)
+        (primary
+          (number))))
+    (const_decl
+      (nested_type
+        (reference))
+      (declarator
+        (name)
+        (primary
+          (number))))))
+
+===
+Empty octet/hex/bitstring literals
+===
+module M {
+  function f() {
+    var octetstring a := ''O;
+    var hexstring b := ''H;
+    var bitstring c := ''B;
+    var octetstring d := 'A1B2'O;
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (octetstring))))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (hexstring))))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (bitstring))))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (octetstring))))))))

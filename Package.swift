@@ -1,5 +1,20 @@
 // swift-tools-version:5.3
 import PackageDescription
+import Foundation
+
+// `src/parser.c` is generated from `grammar.js` by `tree-sitter generate`.
+// Run that on demand before Swift Package Manager builds if the parser
+// source is missing. SPM's `.prebuildCommand` (5.6+) makes this automatic;
+// older toolchains require the consumer to run `tree-sitter generate`
+// before `swift build`.
+let ensureParserScript = """
+#!/bin/sh
+set -e
+if [ ! -f src/parser.c ]; then
+  echo "src/parser.c is missing; running 'tree-sitter generate'"
+  tree-sitter generate
+fi
+"""
 
 let package = Package(
     name: "TreeSitterTtcn3",
@@ -24,6 +39,7 @@ let package = Package(
                     "package.json",
                     "package-lock.json",
                     "pyproject.toml",
+                    "scripts",
                     "setup.py",
                     "test",
                     "examples",
