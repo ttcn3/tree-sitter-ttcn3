@@ -982,3 +982,43 @@ module M {
             (parenthesized_expression
               (primary
                 (charstring)))))))))
+
+===
+Template with permutation of multiple elements
+===
+module M {
+  type record R { integer a, integer b, integer c }
+  template R t := { permutation (1, 2, 3) };
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name))
+      (field
+        (nested_type
+          (reference))
+        (name))
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (template
+      (name)
+      (name)
+      (primary
+        (composite_literal
+          (primary
+            (permutation
+              (primary
+                (number))
+              (primary
+                (number))
+              (primary
+                (number)))))))))

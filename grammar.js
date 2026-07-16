@@ -831,7 +831,7 @@ module.exports = grammar({
     complement: $ => seq('complement', '(', $._expression, ')'),
     subset: $ => seq('subset', '(', $._expression, ')'),
     superset: $ => seq('superset', '(', $._expression, ')'),
-    permutation: $ => seq('permutation', '(', $._expression, ')'),
+    permutation: $ => seq('permutation', '(', sepBy1(',', $._expression), ')'),
     decmatch: $ => seq('decmatch', '(', $._expression, ',', $._expression, ')'),
     pattern_match: $ => seq('pattern', field('pattern', $._expression)),
 
