@@ -833,7 +833,10 @@ module.exports = grammar({
     superset: $ => seq('superset', '(', $._expression, ')'),
     permutation: $ => seq('permutation', '(', sepBy1(',', $._expression), ')'),
     decmatch: $ => seq('decmatch', '(', $._expression, ',', $._expression, ')'),
-    pattern_match: $ => seq('pattern', field('pattern', $._expression)),
+    // Pattern match (spec §15.7 / B.1.4): `pattern [ @nocase ] EXPR` —
+// `@nocase` is a template restriction that makes the pattern case-insensitive.
+// Used in IMS templates (NR5GC IMS_SIP_Templates.ttcn).
+    pattern_match: $ => seq('pattern', field('nocase', optional('@nocase')), field('pattern', $._expression)),
 
     function_literal: $ => seq(
       'function',

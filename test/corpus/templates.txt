@@ -1022,3 +1022,29 @@ module M {
                 (number))
               (primary
                 (number)))))))))
+
+===
+Template with pattern body and @nocase restriction
+===
+module M {
+  type charstring MyPattern;
+  template MyPattern t := pattern @nocase ("ABC");
+}
+---
+
+(source_file
+  (module
+    (name)
+    (subtype
+      (nested_type
+        (reference))
+      (name))
+    (template
+      (name)
+      (name)
+      (primary
+        (pattern_match
+          (primary
+            (parenthesized_expression
+              (primary
+                (charstring)))))))))
