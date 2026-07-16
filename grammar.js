@@ -120,11 +120,11 @@ module.exports = grammar({
     // a composite_literal's `}`, it may belong to the inner body or to the
     // enclosing field/parameter list. Linear lookahead can't disambiguate.
     [$.composite_literal],
-    // TP3.9: 'pattern "X"' — the same shape appears in both the
-    // subtype-constraint form `(pattern "X")` and the template-body matching
-    // form `pattern "X"` (used inside template bodies). Distinguishable only
-    // by surrounding context.
-    [$.pattern_constraint, $.pattern_match],
+    // V1.13: pattern_match accepts `_expression` (was `charstring`), so the
+    // template-body form `pattern EXPR` can have a parenthesized EXPR like
+    // `(pattern X)`. That overlaps with the subtype-constraint form
+    // `(pattern X)`. Linear lookahead can't disambiguate.
+    [$.pattern_constraint, $.primary],
     // TP3.8: 'modifier' is a choice of @abstract/@control/.../etc; 'template_modifier'
     // is a choice of ordered combos of @fuzzy/@deterministic/@abstract. The
     // lexer prefix '@' is identical; tree-sitter can't disambiguate without
@@ -833,7 +833,7 @@ module.exports = grammar({
     superset: $ => seq('superset', '(', $._expression, ')'),
     permutation: $ => seq('permutation', '(', $._expression, ')'),
     decmatch: $ => seq('decmatch', '(', $._expression, ',', $._expression, ')'),
-    pattern_match: $ => seq('pattern', field('pattern', $.charstring)),
+    pattern_match: $ => seq('pattern', field('pattern', $._expression)),
 
     function_literal: $ => seq(
       'function',

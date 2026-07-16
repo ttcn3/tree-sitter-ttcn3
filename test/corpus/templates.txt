@@ -729,7 +729,8 @@ template charstring PatT := pattern "abc*";
     (name)
     (primary
       (pattern_match
-        (charstring)))))
+        (primary
+          (charstring))))))
 
 ===
 Template with modifies clause (derived template)
@@ -955,3 +956,29 @@ module M {
                           (primary
                             (number)))))))
                 (ifpresent)))))))))
+
+===
+Template with pattern body using expression
+===
+module M {
+  type charstring MyPattern;
+  template MyPattern t := pattern ("ABC");
+}
+---
+
+(source_file
+  (module
+    (name)
+    (subtype
+      (nested_type
+        (reference))
+      (name))
+    (template
+      (name)
+      (name)
+      (primary
+        (pattern_match
+          (primary
+            (parenthesized_expression
+              (primary
+                (charstring)))))))))
