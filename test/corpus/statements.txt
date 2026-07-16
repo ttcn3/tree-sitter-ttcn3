@@ -434,3 +434,45 @@ module HTTP_SelectUnion {
         (return_stmt
           (primary
             (reference)))))))
+
+===
+Regression V1.8: setverdict with expression and log arguments
+===
+module M {
+  type component C {}
+  testcase tc() runs on C {
+    var integer v_score := 95;
+    setverdict(pass, "score=", v_score);
+    setverdict(fail);
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (component_type
+      (name)
+      (block))
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (setverdict_stmt
+          (primary
+            (verdict_literal))
+          (primary
+            (charstring))
+          (primary
+            (reference)))
+        (setverdict_stmt
+          (primary
+            (verdict_literal)))))))
