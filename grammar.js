@@ -459,7 +459,7 @@ module.exports = grammar({
 
     port_declarator: $ => prec.left(seq(
       $._parameterized_name,
-      field('array_dim', optional(seq('[', $._expression, ']'))),
+      field('array_dim', repeat(seq('[', $._expression, ']'))),
       field('value', optional(seq(':=', $._expression))),
     )),
 
@@ -1470,7 +1470,7 @@ module.exports = grammar({
 
     declarator: $ => seq(
       $._parameterized_name,
-      field('array_dim', optional(seq('[', $._expression, ']'))),
+      field('array_dim', repeat(seq('[', $._expression, ']'))),
       field('value', optional(seq(':=', $._expression))),
     ),
 
