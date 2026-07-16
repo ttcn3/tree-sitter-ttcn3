@@ -1688,7 +1688,7 @@
                   },
                   {
                     "type": "SYMBOL",
-                    "name": "references"
+                    "name": "reference"
                   }
                 ]
               },
