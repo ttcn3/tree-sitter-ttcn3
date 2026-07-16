@@ -1,10 +1,10 @@
 # TTCN-3 Grammar — Development Plan
 
-> Generated: 2026-07-15 · Branch: `feature/quick-wins-batch-1` (21 commits ahead of `main`) · Spec: ETSI ES 201 873-1 V4.17.1 (2025-09)
+> Generated: 2026-07-15 · Branch: `develop` (3 commits ahead of `origin/develop`) · Spec: ETSI ES 201 873-1 V4.17.1 (2025-09)
 
 This plan completes the tree-sitter TTCN-3 grammar from its current WIP state to a grammar that parses real-world 3GPP conformance TTCN code. See [`gap-analysis.md`](./gap-analysis.md) for the underlying inventory.
 
-> **Branch status (2026-07-16):** Quick Wins 3 of 5 done (QW1 done, QW3 **blocked — needs redesign**, QW4 done, QW5 done); Phase 0 expressions — 8 of 9 tasks done (E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.8, E0.9 landed; E0.7 `-infinity` closed via QW1). **Phase 1 templates — 8 of 8 tasks done** (T1.1, T1.2, T1.3, T1.4, T1.5, T1.6, T1.7, T1.8 all landed). **Phase 2 statements — 9 of 9 tasks done** (S2.1–S2.9 landed). **Phase 3 types — 11 of 12 tasks done** (TP3.1–TP3.11 landed; TP3.5 deferred — covering clause needs spec investigation). **Phase 4 Validation — 5 of 5 sub-tasks done** (V1 sweep, V2 corpus tests, V3 HTTP coverage, V4 regression test, V5 investigated). **V4.5 done** (queries/highlights.scm 126 mappings, queries/locals.scm scope tracking, queries/tags.scm code navigation, queries/injections.scm minimal — all wired into Rust binding). **NR5GC sweep 165/385 clean (start) → 322/385 clean; errors 661→204** (69% reduction). **158/158 corpus tests pass** (152 original + 3 V2 + 2 V3 + 1 V4). **Real-world highlights: HTTP_CommonTemplates.ttcn 17→0 (V1.6+V1.7); MTC_Component_NR5GC_V2X.ttcn 13→0 (V1.9); CommonIP.ttcn 1→0 (V1.13); NG_NAS_Templates.ttcn 1→0 (V1.14); IMS_SIP_Templates.ttcn 1→0 (V1.15); IMS_CommonDefs.ttcn 6→3 (V1.13).** Remaining ~204 errors are dominated by the tree-sitter LR(1) `ref < num` / `ref > num` / `ref < ref` / `ref < (expr)` / `ref < expr` limitation in if/for/while/guarded conditions and template_values — unfixable without major grammar restructuring. See inline status notes per task.
+> **Branch status (2026-07-16):** Quick Wins 3 of 5 done (QW1 done, QW3 **blocked — needs redesign**, QW4 done, QW5 done); Phase 0 expressions — 8 of 9 tasks done (E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.8, E0.9 landed; E0.7 `-infinity` closed via QW1). **Phase 1 templates — 8 of 8 tasks done** (T1.1, T1.2, T1.3, T1.4, T1.5, T1.6, T1.7, T1.8 all landed). **Phase 2 statements — 9 of 9 tasks done** (S2.1–S2.9 landed). **Phase 3 types — 11 of 12 tasks done** (TP3.1–TP3.11 landed; TP3.5 deferred — covering clause needs spec investigation). **Phase 4 Validation — 5 of 5 sub-tasks done** (V1 sweep, V2 corpus tests, V3 HTTP coverage, V4 regression test, V5 investigated). **Phase 5 Polish — 4 of 4 tasks done** (P5.1 GLR conflict docs audited, P5.2 scanner placeholders cleaned, P5.3 version bumped to 0.1.0 + README rewritten, P5.4 version mismatch reconciled). **V4.5 done** (queries/highlights.scm 126 mappings, queries/locals.scm scope tracking, queries/tags.scm code navigation, queries/injections.scm minimal — all wired into Rust binding). **NR5GC sweep 165/385 clean (start) → 322/385 clean; errors 661→204** (69% reduction). **158/158 corpus tests pass** (152 original + 3 V2 + 2 V3 + 1 V4). **Real-world highlights: HTTP_CommonTemplates.ttcn 17→0 (V1.6+V1.7); MTC_Component_NR5GC_V2X.ttcn 13→0 (V1.9); CommonIP.ttcn 1→0 (V1.13); NG_NAS_Templates.ttcn 1→0 (V1.14); IMS_SIP_Templates.ttcn 1→0 (V1.15); IMS_CommonDefs.ttcn 6→3 (V1.13).** Remaining ~204 errors are dominated by the tree-sitter LR(1) `ref < num` / `ref > num` / `ref < ref` / `ref < (expr)` / `ref < expr` limitation in if/for/while/guarded conditions and template_values — unfixable without major grammar restructuring. See inline status notes per task.
 
 ---
 
@@ -120,12 +120,12 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 
 ## Phase 5 — Polish & Stabilization
 
-| Task | Description | Effort |
-|------|-------------|--------|
-| **P5.1** | Document remaining GLR conflicts, ensure each is listed in `conflicts:` and documented. | 0.5 day |
-| **P5.2** | Clean up `lexical` / `extras` / `inline` / external scanner placeholders referenced by `binding.gyp`, `bindings/rust/build.rs`, `Package.swift`, `bindings/go/binding.go`. | 1 day |
-| **P5.3** | Bump version to `0.1.0`, update root `README.md` to remove "WIP" checkmarks for completed sections, link to `docs/`. | 0.5 day |
-| **P5.4** | Reconcile version mismatch (`package.json` says `1.0.0`, others say `0.0.1`) — pick a single source of truth. | 0.5 day |
+| Task | Description | Effort | Status |
+|------|-------------|--------|--------|
+| **P5.1** | Document remaining GLR conflicts, ensure each is listed in `conflicts:` and documented. | 0.5 day | ✅ done (2026-07-16) — audited all 29 conflict entries in `grammar.js` (lines 32–146). All have explanatory comments (some share a comment block, e.g. `break_stmt`/`continue_stmt`/`return_stmt` share the optional-label/semicolon comment; `var_decl`/`const_decl` share the optional-type/name comment; `set_of_type`/`nested_set_of_type` share the V1.3 `set` token comment). `tree-sitter generate` reports zero unresolved conflicts. |
+| **P5.2** | Clean up `lexical` / `extras` / `inline` / external scanner placeholders referenced by `binding.gyp`, `bindings/rust/build.rs`, `Package.swift`, `bindings/go/binding.go`. | 1 day | ✅ done (commit `2229225`) — removed the dead commented-out scanner block from `bindings/rust/build.rs`. The other 4 bindings (`binding.gyp`, `Package.swift`, `bindings/go/binding.go`, `setup.py`) only have `# NOTE: if your language has an external scanner, add it here.` documentation comments, which are useful for future maintainers and not dead code. |
+| **P5.3** | Bump version to `0.1.0`, update root `README.md` to remove "WIP" checkmarks for completed sections, link to `docs/`. | 0.5 day | ✅ done (commit `f22c393`) — bumped `package.json`, `Cargo.toml`, `pyproject.toml`, `Makefile` all to `0.1.0`. Rewrote `README.md` to reflect actual project state (removed WIP checkmarks for completed sections, documented the LR(1) limitation that caps real-world coverage at 83.6%, linked to `docs/dev-plan.md` and `docs/gap-analysis.md`). |
+| **P5.4** | Reconcile version mismatch (`package.json` says `1.0.0`, others say `0.0.1`) — pick a single source of truth. | 0.5 day | ✅ done (commit `0dec524`) — `package.json` reconciled from `1.0.0` to `0.0.1` to match the `Cargo.toml` / `pyproject.toml` / `Makefile` triple. The `0.0.1` triple was the established build-artifact source of truth. (P5.3 subsequently bumped all four to `0.1.0`.) |
 
 > The 3 known-failing corpus tests (`class_type`, `component_type`, `configuration`) are tracked under Quick Win #4 — not duplicated here.
 
@@ -141,7 +141,7 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 | 2 — Statements/Comm | 7–10 days | **yes** |
 | 3 — Types/Ports | **done** (TP3.1, TP3.2, TP3.3, TP3.4, TP3.6, TP3.7, TP3.8, TP3.9, TP3.10, TP3.11 — TP3.5 deferred, NR5GC has no usage) | mostly parallel |
 | 4 — Validation | 5–7 days | **yes** (regression-protect) |
-| 5 — Polish | 2.5–4 days (P5.1 deduped into QW4) | cleanup |
+| 5 — Polish | **done** (P5.1, P5.2, P5.3, P5.4 all landed 2026-07-16) | cleanup |
 | **Total** | **27–40 working days remaining** | — |
 
 ---
