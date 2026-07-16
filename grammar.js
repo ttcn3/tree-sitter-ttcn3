@@ -1163,7 +1163,14 @@ module.exports = grammar({
     )),
     // S2.5: spec rule 290 PortRef = ComponentRef ":" ArrayIdentifierRef
     // ComponentRef = ObjectReference | "system" | SelfOp | "mtc"
-    port_ref: $ => seq(field('component', $._identifier), ':', field('port_id', $._identifier)),
+    // Index is optional per TTCN-3 ES 201 873-1: `comp:port[idx]` in
+    // connect/map/disconnect/unmap statements.
+    port_ref: $ => seq(
+      field('component', $._identifier),
+      ':',
+      field('port_id', $._identifier),
+      field('index', optional(seq('[', $._expression, ']'))),
+    ),
     // S2.5: spec rule 287 ConnectStatement = "connect" "(" PortRef "," PortRef ")"
     connect_stmt: $ => prec(1, seq('connect', '(', field('port_refs', $.port_ref), ',', field('port_refs', $.port_ref), ')')),
     // S2.5: spec rule 297 MapStatement = "map" "(" PortRef "," PortRef ")" ["param" ActualParList]

@@ -566,6 +566,29 @@ module M {
           (port_ref))))))
 
 ===
+Connect - with indexed PortRef
+===
+module M {
+  function f() {
+    connect(mtc:PTC_Ut[tsc_MTC_PortIndex_SIDELINK], p_Sl:UT)
+  }
+}
+---
+
+(source_file
+  (module
+    name: (name)
+    (func
+      name: (name)
+      parameters: (parameters)
+      body: (block
+        body: (connect_stmt
+          port_refs: (port_ref
+            index: (primary
+              (reference)))
+          port_refs: (port_ref))))))
+
+===
 Map - basic with optional param
 ===
 module M {
