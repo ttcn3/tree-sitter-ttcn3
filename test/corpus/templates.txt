@@ -893,3 +893,65 @@ module M {
           (primary
             (number))
           (ifpresent))))))
+
+===
+Function call argument with trailing ifpresent
+===
+module M {
+  type record R { integer f }
+  template R cr_Inner(integer p) := { f := p };
+  function f_Outer(R p) {}
+  function test() {
+    f_Outer(cr_Inner(1) ifpresent);
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (template
+      (name)
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (primary
+        (compound_value
+          (name)
+          (primary
+            (reference)))))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (block))
+    (func
+      (name)
+      (parameters)
+      (block
+        (reference
+          (function_call_expression
+            (reference)
+            (actual_parameters
+              (actual_parameter
+                (primary
+                  (reference
+                    (function_call_expression
+                      (reference)
+                      (actual_parameters
+                        (actual_parameter
+                          (primary
+                            (number)))))))
+                (ifpresent)))))))))

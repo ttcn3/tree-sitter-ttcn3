@@ -1559,9 +1559,14 @@ module.exports = grammar({
       ')'
     ),
 
+    // V1.11: actual_parameter accepts an optional trailing `ifpresent` as a
+    // matching attribute (spec rule 95 ExtraMatchingAttributes). Used in
+    // NR5GC for: `f(args) ifpresent` where the function-call result is a
+    // template that should only match when present. The same rule applies
+    // to named form `name := expr ifpresent`.
     actual_parameter: $ => choice(
-      field('named', seq($.name, ':=', $._expression)),
-      $._expression,
+      field('named', seq($.name, ':=', $._expression, field('ifpresent', optional($.ifpresent)))),
+      seq($._expression, field('ifpresent', optional($.ifpresent))),
     ),
 
     parameter: $ => seq(
