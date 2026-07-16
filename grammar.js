@@ -1258,9 +1258,10 @@ module.exports = grammar({
     continue_stmt: $ => seq('continue', optional($.name)),
     return_stmt: $ => seq('return', optional($._expression)),
     // S2.1: spec rule 496 SetLocalVerdict = setverdict "(" SingleExpression {"," LogItem} [","] ")"
+    // First arg is a SingleExpression (verdict variable ref, not just literal).
     setverdict_stmt: $ => seq(
       'setverdict', '(',
-      field('verdict', $.verdict_literal),
+      field('verdict', $._expression),
       field('log_args', optional(seq(',', sepBy1(',', $._expression)))),
       ')',
     ),

@@ -35,7 +35,8 @@ module M {
       (parameters)
       (reference)
       (setverdict_stmt
-        (verdict_literal))
+        (primary
+          (verdict_literal)))
       (log_stmt
         (primary
           (charstring))))))

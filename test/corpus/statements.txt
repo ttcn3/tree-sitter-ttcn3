@@ -15,7 +15,8 @@ module M {
       (reference)
       (block
         (setverdict_stmt
-          (verdict_literal))))))
+          (primary
+            (verdict_literal)))))))
 
 ===
 Setverdict - all verdict values parse
@@ -39,13 +40,17 @@ module M {
       (reference)
       (block
         (setverdict_stmt
-          (verdict_literal))
+          (primary
+            (verdict_literal)))
         (setverdict_stmt
-          (verdict_literal))
+          (primary
+            (verdict_literal)))
         (setverdict_stmt
-          (verdict_literal))
+          (primary
+            (verdict_literal)))
         (setverdict_stmt
-          (verdict_literal))))))
+          (primary
+            (verdict_literal)))))))
 
 ===
 Setverdict - with log args
@@ -67,13 +72,15 @@ module M {
       (reference)
       (block
         (setverdict_stmt
-          (verdict_literal)
+          (primary
+            (verdict_literal))
           (primary
             (charstring))
           (primary
             (reference)))
         (setverdict_stmt
-          (verdict_literal)
+          (primary
+            (verdict_literal))
           (primary
             (charstring))
           (primary
@@ -130,7 +137,8 @@ module M {
               (verdict_literal)))
           (block
             (setverdict_stmt
-              (verdict_literal))))))))
+              (primary
+                (verdict_literal)))))))))
 
 ===
 Log statement - variadic expressions
