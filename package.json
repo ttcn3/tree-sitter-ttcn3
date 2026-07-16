@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-ttcn3",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "TTCN-3 Parser",
   "main": "bindings/node",
   "types": "bindings/node",
