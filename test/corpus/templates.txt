@@ -1048,3 +1048,57 @@ module M {
             (parenthesized_expression
               (primary
                 (charstring)))))))))
+
+===
+Real-world: parameterized template with modifies clause
+===
+module RealWorldTemplates {
+  type record R {
+    integer field1,
+    charstring field2
+  }
+
+  template R t_base := {
+    field1 := 1,
+    field2 := "hello"
+  }
+
+  template R t_mod modifies t_base := {
+    field1 := 2
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name))
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (template
+      (name)
+      (name)
+      (primary
+        (compound_value
+          (name)
+          (primary
+            (number))
+          (name)
+          (primary
+            (charstring)))))
+    (template
+      (name)
+      (name)
+      (name)
+      (primary
+        (compound_value
+          (name)
+          (primary
+            (number)))))))
