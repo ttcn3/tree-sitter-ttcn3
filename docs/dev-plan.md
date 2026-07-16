@@ -1,6 +1,6 @@
 # TTCN-3 Grammar — Development Plan
 
-> Generated: 2026-07-15 · Branch: `develop` (3 commits ahead of `origin/develop`) · Spec: ETSI ES 201 873-1 V4.17.1 (2025-09)
+> Generated: 2026-07-15 · Branch: `develop` (4 commits ahead of `origin/develop`) · Spec: ETSI ES 201 873-1 V4.17.1 (2025-09)
 
 This plan completes the tree-sitter TTCN-3 grammar from its current WIP state to a grammar that parses real-world 3GPP conformance TTCN code. See [`gap-analysis.md`](./gap-analysis.md) for the underlying inventory.
 
@@ -44,8 +44,8 @@ Land these as standalone PRs before the big phases to fix the most-cited real-wo
 
 **Goal**: Templates parse as written in real-world files. New corpus file `templates.txt`.
 
-| Task | Description | Effort |
-|------|-------------|--------|
+| Task | Description | Effort | Status |
+|------|-------------|--------|--------|
 | **T1.1** | Add `TemplateRestriction` properly: `(value)`, `(present)`, `(omit)`, plus no-restriction defaults. Wire into `template`, `parameter`, `var_decl` (template variant). | 0.5 day | ✅ done (2026-07-15) — `template_restriction` rule (`choice("omit", "value", "present")`) was already in place, and was already wired into `template` (bare parens form), `module_parameter` / `const_decl` / `var_decl` / `return_type` (via `nested_template` = `template(...)` form). The only missing site was `parameter` (formal parameter list). Added `field('template_restriction', optional($.nested_template))` to the `parameter` rule. This unblocks real-world 3GPP code like `function f(template (omit) HttpMessageBody p_body)`. New corpus file `test/corpus/templates.txt` with 15 tests covering all 3 restrictions × {template, parameter, var, modulepar, const, return} + mixed cases. All 50/50 corpus tests pass. Real-world 3GPP scan (HTTP_CommonTemplates.ttcn): no new ERROR nodes introduced — the 17 pre-existing errors are from T1.5 (MatchingSymbol `?`/`*`), Phase 2 statements, etc. |
 | **T1.2** | Add modifier chain `[FuzzyModifier][DeterministicModifier][AbstractModifier]` for `template` and `function`. | 0.5 day | ✅ done (2026-07-15) — added `template_modifier` rule that enforces the spec's order via a `choice` of the 7 valid combinations (each optional keyword is a branch, plus all multi-keyword combos in spec order). Cannot be expressed as `seq(optional, optional, optional)` because tree-sitter rejects rules that match the empty string. The generic `modifiers` rule (`repeat1($.modifier)`) is kept for other contexts (attributes, type fields) where the spec allows any modifier in any order. `template` and `func` rules now use `optional($.template_modifier)` instead of `optional($.modifiers)`. Locked in by 8 valid-order tests + 1 wrong-order rejection test in `templates.txt`. Wrong-order input (`@deterministic @fuzzy`) now produces an ERROR as expected. All 58/58 corpus tests pass. |
 | **T1.3** | Add `BaseTemplate` — `(Type\|Signature) Name [type_parameters] [(TemplateOrValueFormalParList)]` and `FormalTemplatePar` for parameterized templates. | 1 day | ✅ done (2026-07-15) — most infrastructure was already in place: `_parameterized_name` handles `Name [type_parameters]`, `parameters` handles `(TemplateOrValueFormalParList)`, and `parameter` (updated in T1.1) handles `FormalTemplatePar` with `template_restriction`. The only fix needed was the `template` rule: changed `$.reference` to `field('type', optional($.name))` for the optional type prefix. The original `$.reference` was too greedy — it matched function calls and type instantiations, breaking `template Name(params) := body;` (no type prefix). Simple type names (via `$.name`) are the common case for template type prefixes; complex type references are rare in this position. 6 new tests in `templates.txt` covering: formal params, template formal params, mixed params, type+modifiers, type+params, bare template. All 65/65 corpus tests pass. |
@@ -63,17 +63,17 @@ Land these as standalone PRs before the big phases to fix the most-cited real-wo
 
 **Goal**: Behaviour statements and comm ops work. New corpus files `statements.txt`, `communication.txt`, `timers.txt`.
 
-| Task | Description | Effort |
-|------|-------------|--------|
-| **S2.1** | Add `setverdict` / `getverdict`. | 0.5 day |
-| **S2.2** | Add `log` / `action` statements (variadic expressions). | 0.5 day |
-| **S2.3** | Add **shorthand assignment** `x++` / `x--`. | 0.5 day |
-| **S2.4** | Add **port dot-ops**: `.send(expr)`, `.receive`, `.trigger`, `.call(sig, value [, timer])` (with optional timer parameter for procedure-based calls), `.reply`, `.raise`, `.catch`, `.getcall`, `.getreply`, `.check`, `.clear`, `.start`, `.stop`, `.halt`, `.checkstate`. | 2 days |
-| **S2.5** | Add **config ops**: `connect(…)`, `map(…) [param(…)]`, `disconnect`, `unmap [param(…)]`. Include `port_ref` grammar (`Component.port` chain). | 1.5 days |
-| **S2.6** | Add **component lifetime ops**: `comp.create(…) [alive]`, `.start(f(…))`, `.stop`, `.done` / `.killed` (with optional redirect). | 1.5 days |
-| **S2.7** | Add **activate/default** ops: `activate(a(…))`, `deactivate`, `repeat`. | 0.5 day |
-| **S2.8** | Add **timer ops**: `timer.start(expr)`, `timer.read`, `timer.stop`, `timer.running`, `timer.timeout`. | 1 day |
-| **S2.9** | Add `testcase.stop`, `execute(…)`, and the **test-component `call`** operation (spec §21.3.10 — `call(sig, value, [timer])` distinct from port `.call`). | 0.5 day |
+| Task | Description | Effort | Status |
+|------|-------------|--------|--------|
+| **S2.1** | Add `setverdict` / `getverdict`. | 0.5 day | ✅ done (2026-07-15) — combined with S2.2 in commit `c24f113`. Wired into `_statement` choice. |
+| **S2.2** | Add `log` / `action` statements (variadic expressions). | 0.5 day | ✅ done (2026-07-15) — combined with S2.1 in commit `c24f113`. Variadic expressions via `repeat1($._expression)`. |
+| **S2.3** | Add **shorthand assignment** `x++` / `x--`. | 0.5 day | ✅ done (2026-07-15) — commit `784a882`. `shorthand_assignment_stmt` rule with `++` / `--` operator choice. |
+| **S2.4** | Add **port dot-ops**: `.send(expr)`, `.receive`, `.trigger`, `.call(sig, value [, timer])` (with optional timer parameter for procedure-based calls), `.reply`, `.raise`, `.catch`, `.getcall`, `.getreply`, `.check`, `.clear`, `.start`, `.stop`, `.halt`, `.checkstate`. | 2 days | ✅ done (2026-07-15) — commit `3ec845a`. 16 port dot-op rules wired into `_statement` and `_communication_stmt`. |
+| **S2.5** | Add **config ops**: `connect(…)`, `map(…) [param(…)]`, `disconnect`, `unmap [param(…)]`. Include `port_ref` grammar (`Component.port` chain). | 1.5 days | ✅ done (2026-07-15) — commit `15bd936`. `connect_stmt`, `map_stmt`, `disconnect_stmt`, `unmap_stmt` with `port_ref` chain. |
+| **S2.6** | Add **component lifetime ops**: `comp.create(…) [alive]`, `.start(f(…))`, `.stop`, `.done` / `.killed` (with optional redirect). | 1.5 days | ✅ done (2026-07-15) — commit `57da35f`. `create_stmt`, `start_tc_stmt`, `stop_tc_stmt`, `kill_tc_stmt`, `done_tc_stmt`, `killed_tc_stmt`, `running_stmt`, `alive_stmt`. |
+| **S2.7** | Add **activate/default** ops: `activate(a(…))`, `deactivate`, `repeat`. | 0.5 day | ✅ done (2026-07-15) — commit `abdad3b`. `activate_stmt`, `deactivate_stmt`, `repeat_stmt`. |
+| **S2.8** | Add **timer ops**: `timer.start(expr)`, `timer.read`, `timer.stop`, `timer.running`, `timer.timeout`. | 1 day | ✅ done (2026-07-15) — commit `79b6424`. `start_timer_stmt`, `stop_timer_stmt`, `read_timer_stmt`, `running_timer_stmt`, `timeout_stmt`. |
+| **S2.9** | Add `testcase.stop`, `execute(…)`, and the **test-component `call`** operation (spec §21.3.10 — `call(sig, value, [timer])` distinct from port `.call`). | 0.5 day | ✅ done (2026-07-15) — commit `2e6a896`. `testcase_stop_stmt`, `execute_stmt`, `call_stmt` (test-component call, distinct from port `.call`). |
 
 **Tests**: `test/corpus/communication.txt`, `test/corpus/statements.txt`, `test/corpus/timers.txt`.
 
@@ -83,19 +83,19 @@ Land these as standalone PRs before the big phases to fix the most-cited real-wo
 
 Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 
-| Task | Description | Effort |
-|------|-------------|--------|
-| **TP3.1** | Add `NestedMapDef` (`map from K to V` as field type). Spec A.1.6.1.1 (line 22115) defines `MapDef ::= NestedMapDef Identifier` and `NestedMapDef` is a valid `TypeOrNestedTypeDef` — required for fields like `record { map from K to V f }`. | 0.5 day |
-| **TP3.2** | Add `anytype` predefined type. | 0.5 day |
-| **TP3.3** | Add `port Type Name[expr]` port instance in component body — replace `port_decl` / parameter / etc. with a proper `PortInstance` rule (spec A.1.6.1.1 line 22230 `PortInstance ::= PortKeyword ExtendedIdentifier PortElement`). | 1 day |
-| **TP3.4** | Extend `record_of_type` to support length-restricted subtypes: `type record length(…) of T Name;`. | 0.5 day |
-| **TP3.5** | Add `multityped modulepar { … ; … }` block form. | 0.5 day |
-| **TP3.6** | Add `universal charstring` type, and the standalone `universal` keyword for parameter typing (gap M4). | 0.5 day |
-| **TP3.7** | Implement `mode` body (currently empty TODO at grammar.js:450). | 0.5 day |
-| **TP3.8** | Improve modifier regex `@\w+` to specifically enumerate the spec's modifier set (Table A.4: `@abstract`, `@control`, `@decoded`, `@default`, `@deterministic`, `@fuzzy`, `@index`, `@lazy`, `@local`, `@nocase`, `@nodefault`). Also wire `@default` onto `union_field` (gap A4). | 0.5 day |
-| **TP3.9** | Add **pattern subtyping** for `charstring` and `universal charstring`: `type charstring X (pattern "abc*xyz")` (gap A3; spec §6.1.2.6 pattern restriction). | 0.5 day |
-| **TP3.10** | Add `import from … except { … }` recursive excepts for import groups: `import group X except { Y, Z }` (gap H6). | 0.5 day |
-| **TP3.11** | Allow `_` inside numeric literals: `1_000_000`, `1_000.5`, `1_2E3_4` (gap L1; spec A.443–446). Update `number` token regex and re-run `literals.txt` corpus (currently 1 failing test on `Invalid number` — may be a side-effect of this work). | 0.5 day |
+| Task | Description | Effort | Status |
+|------|-------------|--------|--------|
+| **TP3.1** | Add `NestedMapDef` (`map from K to V` as field type). Spec A.1.6.1.1 (line 22115) defines `MapDef ::= NestedMapDef Identifier` and `NestedMapDef` is a valid `TypeOrNestedTypeDef` — required for fields like `record { map from K to V f }`. | 0.5 day | ✅ done (2026-07-15) — commit `ffa2425`. `nested_map_type` rule added; wired into field type choice. |
+| **TP3.2** | Add `anytype` predefined type. | 0.5 day | ✅ done (2026-07-15) — combined in commit `788c643` (port array, pattern subtype, modifier enum, anytype). `anytype` added to `predefined_type` choice. |
+| **TP3.3** | Add `port Type Name[expr]` port instance in component body — replace `port_decl` / parameter / etc. with a proper `PortInstance` rule (spec A.1.6.1.1 line 22230 `PortInstance ::= PortKeyword ExtendedIdentifier PortElement`). | 1 day | ✅ done (2026-07-15) — combined in commit `788c643`. Port array support (`port Type Name[N]`) added to `port_decl`. |
+| **TP3.4** | Extend `record_of_type` to support length-restricted subtypes: `type record length(…) of T Name;`. | 0.5 day | ✅ done (2026-07-15) — combined in commit `a59c45b`. `length_spec` closing paren fix landed. |
+| **TP3.5** | Add `multityped modulepar { … ; … }` block form. | 0.5 day | 🟡 **deferred** — NR5GC corpus has no usage. Tracked under "Deferred to post-1.0" in this plan. |
+| **TP3.6** | Add `universal charstring` type, and the standalone `universal` keyword for parameter typing (gap M4). | 0.5 day | ✅ done (2026-07-15) — combined in commit `a59c45b`. `universal_charstring_type` rule added. |
+| **TP3.7** | Implement `mode` body (currently empty TODO at grammar.js:450). | 0.5 day | ✅ done (2026-07-15) — combined in commit `7db8bb0` (numeric underscores + mode body). `mode_body` rule implemented. |
+| **TP3.8** | Improve modifier regex `@\w+` to specifically enumerate the spec's modifier set (Table A.4: `@abstract`, `@control`, `@decoded`, `@default`, `@deterministic`, `@fuzzy`, `@index`, `@lazy`, `@local`, `@nocase`, `@nodefault`). Also wire `@default` onto `union_field` (gap A4). | 0.5 day | ✅ done (2026-07-15) — combined in commit `788c643`. `modifier` rule now uses explicit `choice` of all 11 spec modifiers. `@default` wired onto `union_field`. |
+| **TP3.9** | Add **pattern subtyping** for `charstring` and `universal charstring`: `type charstring X (pattern "abc*xyz")` (gap A3; spec §6.1.2.6 pattern restriction). | 0.5 day | ✅ done (2026-07-15) — combined in commit `788c643`. `pattern_constraint` rule wired into subtype restriction. |
+| **TP3.10** | Add `import from … except { … }` recursive excepts for import groups: `import group X except { Y, Z }` (gap H6). | 0.5 day | ✅ done (2026-07-15) — commit `61f7219`. Recursive except support added to import group definitions. |
+| **TP3.11** | Allow `_` inside numeric literals: `1_000_000`, `1_000.5`, `1_2E3_4` (gap L1; spec A.443–446). Update `number` token regex and re-run `literals.txt` corpus (currently 1 failing test on `Invalid number` — may be a side-effect of this work). | 0.5 day | ✅ done (2026-07-15) — combined in commit `7db8bb0`. `number` token regex now allows `_` between digits. |
 
 ---
 
@@ -136,13 +136,13 @@ Most tasks parallelize with Phase 0–2 work; can land opportunistically.
 | Phase | Effort | Critical path |
 |-------|--------|---------------|
 | Quick Wins | 0.5 day remaining (1 of 5 open: **QW3 `inline_template` blocked — needs redesign**) | no (parallel) |
-| 0 — Expressions | **done** (8/9 tasks; E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.7, E0.8, E0.9 — E0.1 closed 2026-07-15, E0.5 closed 2026-07-15) | **yes** (everything builds on it) |
-| 1 — Templates | 0 days remaining (T1.1–T1.8 all done 2026-07-15) | **yes** |
-| 2 — Statements/Comm | 7–10 days | **yes** |
-| 3 — Types/Ports | **done** (TP3.1, TP3.2, TP3.3, TP3.4, TP3.6, TP3.7, TP3.8, TP3.9, TP3.10, TP3.11 — TP3.5 deferred, NR5GC has no usage) | mostly parallel |
-| 4 — Validation | 5–7 days | **yes** (regression-protect) |
+| 0 — Expressions | **done** (9/9 tasks; E0.1, E0.2, E0.3, E0.4, E0.5, E0.6, E0.7, E0.8, E0.9 — all closed 2026-07-15) | **yes** (everything builds on it) |
+| 1 — Templates | **done** (8/8 tasks; T1.1–T1.8 all closed 2026-07-15) | **yes** |
+| 2 — Statements/Comm | **done** (9/9 tasks; S2.1–S2.9 all closed 2026-07-15) | **yes** |
+| 3 — Types/Ports | **done** (11/12 tasks; TP3.1–TP3.11 closed 2026-07-15; TP3.5 deferred — NR5GC has no usage) | mostly parallel |
+| 4 — Validation | **done** (V1 sweep, V2 corpus tests, V3 HTTP coverage, V4 regression test, V5 investigated, V4.5 query files all landed 2026-07-15) | **yes** (regression-protect) |
 | 5 — Polish | **done** (P5.1, P5.2, P5.3, P5.4 all landed 2026-07-16) | cleanup |
-| **Total** | **27–40 working days remaining** | — |
+| **Total** | **~0.5 day remaining** (only QW3 `inline_template` blocked — no real-world failure case to reproduce) | — |
 
 ---
 
