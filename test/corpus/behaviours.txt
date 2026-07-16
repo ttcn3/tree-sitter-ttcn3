@@ -179,3 +179,92 @@ module RealWorldFunctions {
                   (reference)
                   (primary
                     (boolean_literal)))))))))))
+
+===
+Real-world: HTTP function with template (omit) return type
+===
+module HTTP_CommonTemplates {
+  type record HttpMessageBody {
+    charstring text
+  }
+
+  function f_HttpContentLength(template (omit) HttpMessageBody p_MessageBody)
+    return template (omit) integer
+  {
+    var HttpMessageBody v_MessageBody;
+    var integer v_Length := 0;
+
+    if (p_MessageBody != omit) {
+      v_MessageBody := valueof(p_MessageBody);
+      v_Length := lengthof(v_MessageBody.text);
+      return v_Length;
+    }
+    return omit;
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_template
+            (template_restriction))
+          (nested_type
+            (reference))
+          (name)))
+      (return_type
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference)))
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (if_stmt
+          (equal_expression
+            (primary
+              (reference))
+            (primary))
+          (block
+            (assignment
+              (reference)
+              (primary
+                (predefined_func_call
+                  (predefined_func_name)
+                  (primary
+                    (reference)))))
+            (assignment
+              (reference)
+              (primary
+                (predefined_func_call
+                  (predefined_func_name)
+                  (primary
+                    (reference
+                      (selector_expression
+                        (reference)
+                        (reference)))))))
+            (return_stmt
+              (primary
+                (reference)))))
+        (return_stmt
+          (primary))))))

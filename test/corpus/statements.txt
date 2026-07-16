@@ -336,3 +336,101 @@ module M {
           (select_clause
             (select_else_clause
               (block))))))))
+
+===
+Real-world: select union with case else clause
+===
+module HTTP_SelectUnion {
+  type union U {
+    charstring text,
+    octetstring binary
+  }
+
+  function f_select(in U p_val) return integer {
+    var integer v_Length := 0;
+
+    select union (p_val) {
+      case (text)   { v_Length := lengthof(p_val.text); }
+      case (binary) { v_Length := lengthof(p_val.binary); }
+      case else     { v_Length := -1; }
+    }
+    return v_Length;
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (union_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name))
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (return_type
+        (nested_type
+          (reference)))
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (select_union_stmt
+          (primary
+            (reference))
+          (select_clause
+            (select_case_clause
+              (primary
+                (reference))
+              (block
+                (assignment
+                  (reference)
+                  (primary
+                    (predefined_func_call
+                      (predefined_func_name)
+                      (primary
+                        (reference
+                          (selector_expression
+                            (reference)
+                            (reference))))))))))
+          (select_clause
+            (select_case_clause
+              (primary
+                (reference))
+              (block
+                (assignment
+                  (reference)
+                  (primary
+                    (predefined_func_call
+                      (predefined_func_name)
+                      (primary
+                        (reference
+                          (selector_expression
+                            (reference)
+                            (reference))))))))))
+          (select_clause
+            (select_else_clause
+              (block
+                (assignment
+                  (reference)
+                  (unary_expression
+                    (primary
+                      (number))))))))
+        (return_stmt
+          (primary
+            (reference)))))))
