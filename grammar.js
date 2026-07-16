@@ -803,7 +803,7 @@ module.exports = grammar({
     ),
 
     // Matching symbols (spec §15.7 / B.1). `*` conflicts with the multiply operator — precedence resolves it.
-    any_value: _ => '?',
+    any_value: $ => seq('?', optional($.length_attribute)),
     wildcard: _ => '*',
     ifpresent: _ => 'ifpresent',
     length_attribute: $ => seq('length', '(', $._expression, ')'),

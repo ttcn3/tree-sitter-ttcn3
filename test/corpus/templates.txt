@@ -587,6 +587,22 @@ template MyRec LengthT := length(2);
           (number))))))
 
 ===
+Template with any value with length attribute
+===
+template bitstring WildcardLenT := ? length(7);
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (any_value
+        (length_attribute
+          (primary
+            (number)))))))
+
+===
 Template with range body
 ===
 template integer Ranged := (1 .. 10);
