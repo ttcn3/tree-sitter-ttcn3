@@ -958,6 +958,50 @@ module M {
                 (ifpresent)))))))))
 
 ===
+Template RHS with trailing ifpresent (spec rule 95)
+===
+module M {
+  type record GenValue { charstring quotedString }
+  function f_Caller(GenValue p) {}
+  template GenValue cr_GenValue_None := f_Caller({quotedString := ""}) ifpresent;
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (block))
+    (template
+      (name)
+      (name)
+      (primary
+        (reference
+          (function_call_expression
+            (reference)
+            (actual_parameters
+              (actual_parameter
+                (primary
+                  (compound_value
+                    (name)
+                    (primary
+                      (charstring)))))))))
+      (extra_matching_attributes
+        (ifpresent)))))
+
+===
 Template with pattern body using expression
 ===
 module M {

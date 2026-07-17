@@ -5,40 +5,31 @@ A [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for
 
 ## Status
 
-`v0.2.0` — parses real-world 3GPP conformance TTCN-3 code at **99.7% clean**
-(384/385 files in the NR5GC corpus have 0 errors; the 1 remaining file has
-2 ERROR nodes). Up from v0.1.1's 97.7% / 18 errors. Parser is generated
-without warnings; 158/158 corpus tests pass.
+`v0.2.1` — parses real-world 3GPP conformance TTCN-3 code at **100% clean**
+(385/385 files in the NR5GC corpus have 0 errors; 0 ERROR nodes total).
+Up from v0.2.0's 99.7% / 2 errors. Parser is generated without warnings;
+159/159 corpus tests pass.
 
-The v0.2.0 jump closed **four distinct grammar gaps** that v0.1.1 left open
-on top of the v0.1.1→v0.1.0 rel_expression conflict resolution:
+The v0.2.1 jump closed the **last grammar gap** left open by v0.2.0:
 
-- **`-> value v_X` redirect inside `check(receive(...))`** — added the
-  `inline_communication_op` rule (spec rule 372: a `check()` parameter may
-  be an inline port operation), and taught `port_redirect` to accept the
-  `value` / `sender` / `verdict` / `param` / `timestamp` / `@index value`
-  keyword forms alongside the bare-target form.
-- **Array type with explicit size `[N]`** — added optional `array_def` field
-  to `subtype` so `type float PTWLengthParameters[16];` parses.
-- **Inline `union` / `record` / `set` blocks inside `type record` body** —
-  added `nested_union_type` / `nested_record_type` / `nested_set_type` to
-  the `nested_type` dispatcher so a field may declare an anonymous
-  structural type inline.
-- **`complement(...)` with multiple arguments** — switched from a single
-  `_expression` to `sepBy1(',', $._expression)`, matching the real-world
-  pattern `complement('00'O, 'FF'O)`.
-- **Formal-parameter default with trailing `ifpresent`** — `parameter`'s
-  default rule now accepts an optional `ifpresent` matching attribute.
+- **Trailing `ifpresent` matching attribute on template assignment RHS** —
+  added an optional `extra_matching_attributes` field to the `template` rule
+  so `template T x := f(args) ifpresent;` parses (spec rule 95
+  ExtraMatchingAttributes). One new conflict declared: `[$.any_value]` —
+  the existing `any_value: $ => seq('?', optional($.length_attribute))` rule
+  overlapped with the new `length_attribute` suffix on expressions; GLR
+  resolves in favor of the `any_value` interpretation.
 
-The 2 remaining ERROR nodes are a single GLR-recovery edge in
-`IMS_CommonTemplates.ttcn` at a template assignment whose RHS is a function
-call followed by a trailing `ifpresent` matching attribute
-(`... := f(args) ifpresent;`). The tree is otherwise correctly built.
-
-**158/158 corpus tests pass** (152 original + 3 real-world + 2 HTTP + 1 regression).
+**159/159 corpus tests pass** (158 from v0.2.0 + 1 new V1.17 test for the
+template RHS ifpresent pattern).
 
 ## Earlier milestones
 
+- **v0.2.0** — 99.7% clean (384/385, 2 errors). Closed four grammar gaps on
+  top of v0.1.1: `-> value v_X` redirect inside `check(receive(...))`,
+  array type with explicit size, inline `union`/`record`/`set` blocks in
+  `type record` body, `complement(...)` with multiple args, and formal-
+  parameter default with trailing `ifpresent`.
 - **v0.1.1** — 97.7% clean (376/385, 18 errors). Diagnosed the `ident '<'`
   shift-reduce conflict on `type_instantiation_expression` vs.
   `rel_expression`: the static `prec(PREC.primary)` on type instantiation was

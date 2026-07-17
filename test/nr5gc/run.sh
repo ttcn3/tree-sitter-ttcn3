@@ -24,9 +24,9 @@ CORPUS_DIR="${CORPUS_DIR:-$REPO_ROOT/references/code/NR5GC_IWD_26wk24}"
 BASELINE_FILE="$SCRIPT_DIR/BASELINE.txt"
 RESULTS_FILE="$SCRIPT_DIR/results.txt"
 
-# ----- defaults (from BASELINE.txt as of v0.2.0) -----
-MIN_CLEAN_FRACTION="${MIN_CLEAN_FRACTION:-0.990}"   # require ≥99.0% clean
-MAX_ERROR_NODES="${MAX_ERROR_NODES:-10}"           # allow up to 10 ERROR nodes
+# ----- defaults (from BASELINE.txt as of v0.2.1) -----
+MIN_CLEAN_FRACTION="${MIN_CLEAN_FRACTION:-0.995}"   # require ≥99.5% clean
+MAX_ERROR_NODES="${MAX_ERROR_NODES:-5}"            # allow up to 5 ERROR nodes
 
 # ----- args -----
 CHECK_REGRESSION=1

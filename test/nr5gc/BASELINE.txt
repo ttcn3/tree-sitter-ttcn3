@@ -1,6 +1,6 @@
 # NR5GC Corpus Baseline Metrics
 #
-# Recorded at v0.2.0 against references/code/NR5GC_IWD_26wk24/.
+# Recorded at v0.2.1 against references/code/NR5GC_IWD_26wk24/.
 # These are the reference numbers — run.sh enforces regression thresholds
 # with headroom above these values.
 #
@@ -8,11 +8,11 @@
 # (also bump MIN_CLEAN_FRACTION / MAX_ERROR_NODES in run.sh).
 
 total_files = 385
-clean       = 384
-clean_pct   = 99.7
-errors      = 2
-error_files = 1
+clean       = 385
+clean_pct   = 100.0
+errors      = 0
+error_files = 0
 
 # Thresholds enforced by run.sh:
-min_clean_pct   = 99.0   # floor (0.7% headroom over baseline 99.7%)
-max_error_nodes = 10     # ceiling (8 nodes headroom over baseline 2)
+min_clean_pct   = 99.5   # floor (0.5% headroom over baseline 100.0%)
+max_error_nodes = 5      # ceiling (5 nodes headroom over baseline 0)

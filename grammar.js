@@ -60,6 +60,11 @@ module.exports = grammar({
     // Conflicts with predefined_func_name (which also accepts 2-arg calls). GLR resolves.
     [$.decmatch, $.predefined_func_name],
 
+    // V1.17: `? length(...)` is ambiguous between `any_value` (one rule) and
+    // `any_value` + `extra_matching_attributes` (`?` then `length(...)`).
+    // GLR resolves in favor of the any_value interpretation.
+    [$.any_value],
+
     // S2.4: `port.send(t) to all component` — the `to all component` tail
     // could be either a `to_clause` ending the send_stmt, or a fresh
     // `reference` (since `all component` is aliased as `_identifier`).
@@ -504,6 +509,7 @@ module.exports = grammar({
       field('modifies', optional($._modifies_spec)),
       ':=',
       $._expression,
+      field('matching_attributes', optional($.extra_matching_attributes)),
       field('attributes', optional($.attributes)),
     ),
 
@@ -830,6 +836,15 @@ module.exports = grammar({
     wildcard: _ => '*',
     ifpresent: _ => 'ifpresent',
     length_attribute: $ => seq('length', '(', $._expression, ')'),
+    // Spec rule 95 ExtraMatchingAttributes — `ifpresent` and/or `length(...)`
+    // as a trailing matching attribute on a template body. Used on the
+    // `template` RHS so `template T x := f(args) ifpresent;` parses (NR5GC
+    // IMS_CommonTemplates.ttcn).
+    extra_matching_attributes: $ => choice(
+      $.ifpresent,
+      $.length_attribute,
+      seq($.length_attribute, $.ifpresent),
+    ),
     // Range: `( expr .. expr )` — spec B.1.1. May conflict with template_values; GLR resolves.
     range: $ => seq('(', $._expression, '..', $._expression, ')'),
     // ValueRange: `expr .. expr` (unparenthesized) — spec A.1.5 / B.1.1.
