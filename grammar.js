@@ -150,6 +150,15 @@ module.exports = grammar({
     // `(expr)` parses as either `parenthesized_expression` or
     // `template_values` (a single-element tuple). Let GLR pick.
     [$.parenthesized_expression, $.template_values],
+
+    // NR5GC: `ref < num` / `ref > num` / `ref < ref` / `ref < (expr)` inside
+    // conditions and template_values lists. The parser can't decide locally
+    // whether `ident '<'` starts a relational_expression (math) or a
+    // type_instantiation_expression (generics). The conflict declarations
+    // combined with `prec.dynamic(-1, ...)` on type_instantiation_expression
+    // force the GLR engine to fork and pick the correct parse at runtime.
+    [$.reference, $.type_instantiation_expression],
+    [$.name, $.type_instantiation_expression],
   ],
 
   rules: {
@@ -871,7 +880,7 @@ module.exports = grammar({
       alias(seq('any', 'component'), $._identifier),
     ),
 
-    type_instantiation_expression: $ => prec(PREC.primary, seq(
+    type_instantiation_expression: $ => prec.dynamic(-1, seq(
       field('type', $._identifier),
       '<',
       sepBy(',', $.nested_type),

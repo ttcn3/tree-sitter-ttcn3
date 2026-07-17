@@ -5,14 +5,34 @@ A [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for
 
 ## Status
 
-`v0.1.0` — parses real-world 3GPP conformance TTCN-3 code at 83.6% clean
-(322/385 files in the NR5GC corpus have 0 errors; remaining 63 files contain
-~204 errors, all of the same shape: `ref < num` / `ref > num` / `ref < ref` /
-`ref < (expr)` / `ref < expr` patterns inside `if` / `for` / `while` / `guarded`
-conditions and `template_values` lists. This is a tree-sitter LR(1) limitation,
-not a grammar bug — fixing it would require lifting `rel_expression` to be
-usable as a `condition` directly, which conflicts with `primary` precedence.
-Tracked as an unfixable without major grammar restructuring.)
+`v0.1.1` — parses real-world 3GPP conformance TTCN-3 code at **97.7% clean**
+(376/385 files in the NR5GC corpus have 0 errors; remaining 9 files contain
+18 errors). The previous `v0.1.0` limit at 83.6% clean was traced to a
+shift-reduce conflict in the LR(1) parse table: `ident '<'` could start either
+a `type_instantiation_expression` (with `prec(PREC.primary)`) or a
+`rel_expression`. Resolved by dropping the static precedence on
+`type_instantiation_expression`, switching it to `prec.dynamic(-1, ...)`, and
+declaring the table-level conflict explicitly (`[$.reference,
+$.type_instantiation_expression]` and `[$.name,
+$.type_instantiation_expression]`) so Tree-sitter's GLR engine forks at
+runtime. Zero regressions; corpus size delta is +270 bytes.
+
+The 9 remaining files have 18 errors across **3 distinct grammar gaps** that
+are not `rel_expression`-related:
+
+- **`-> value v_X` redirect inside `receive()` call** (5 errors, 4 files) —
+  TTCN-3 spec §22.2; `redirection_expr` is not accepted in receive-argument
+  position.
+- **Array type with explicit size `[N]`** (1 error, 1 file) — e.g.
+  `type float PTWLengthParameters[16];`. Array types with size specifier are
+  unimplemented.
+- **Inline `/* @status ... */` comment inside `type record` body** (4 errors,
+  1 file) — comments between `{` and the first field confuse the block parser.
+
+Plus 1 minor GLR-recovery edge: `IMS_CommonTemplates.ttcn` picked a different
+recovery path at `fl_SIP_GenericParamCheckAndGetValue(...)` (leading-underscore
+function name inside a `return` statement). Tree is still built correctly;
+produces one extra ERROR marker.
 
 **158/158 corpus tests pass** (152 original + 3 real-world + 2 HTTP + 1 regression).
 
