@@ -1,6 +1,6 @@
 # `test/nr5gc/` — Real-World TTCN-3 Regression Test
 
-**Generated:** 2026-07-17 (v0.1.1)
+**Generated:** 2026-07-17 (v0.2.0)
 
 ## OVERVIEW
 
@@ -18,7 +18,7 @@ TTCN-3 code from the 3GPP conformance testsuite.
 ```
 test/nr5gc/
 ├── run.sh         # The test script (executable)
-├── BASELINE.txt   # Recorded v0.1.1 metrics (the regression threshold)
+├── BASELINE.txt   # Recorded v0.2.0 metrics (the regression threshold)
 └── README.md      # This file
 ```
 
@@ -51,9 +51,9 @@ regenerated on every run).
 === NR5GC Real-World Regression Test ===
 Corpus:         /path/to/references/code/NR5GC_IWD_26wk24
 Total files:    385
-Clean:          376 (97.7%)
-With errors:    9
-ERROR nodes:    18
+Clean:          384 (99.7%)
+With errors:    1
+ERROR nodes:    2
 Per-file log:   test/nr5gc/results.txt
 ```
 
@@ -62,37 +62,27 @@ Exit code `0` = passed (no regression), `1` = regression detected,
 
 ## BASELINE & THRESHOLDS
 
-`BASELINE.txt` records the v0.1.1 metrics:
+`BASELINE.txt` records the v0.2.0 metrics:
 
 | Metric | Value |
 |---|---|
 | Total files | 385 |
-| Clean | 376 |
-| Clean % | 97.7% |
-| ERROR nodes | 18 |
+| Clean | 384 |
+| Clean % | 99.7% |
+| ERROR nodes | 2 |
 
 `run.sh` enforces two thresholds (with headroom over the baseline so that
 small noise doesn't cause false failures):
 
-- **Clean %** must be ≥ **97.0%**
-- **ERROR nodes** must be ≤ **25**
+- **Clean %** must be ≥ **99.0%**
+- **ERROR nodes** must be ≤ **10**
 
 When the grammar improves and the threshold is no longer tight, bump the
 numbers in `BASELINE.txt` and update the `MIN_CLEAN_FRACTION` /
 `MAX_ERROR_NODES` defaults in `run.sh`.
 
-## REMAINING KNOWN GAPS (post v0.1.1)
+## REMAINING KNOWN GAPS (post v0.2.0)
 
-The 18 remaining ERROR nodes across 9 files fall into **3 distinct grammar
-gaps** unrelated to the rel_expression fix:
-
-1. **`-> value v_X` redirect inside `receive()` call** (5 errors, 4 files)
-   — TTCN-3 spec §22.2; `redirection_expr` not accepted in receive-argument
-   position.
-2. **Array type with explicit size `[N]`** (1 error, 1 file) — array types
-   with size specifier are unimplemented.
-3. **Inline `/* @status ... */` comment inside `type record` body** (4
-   errors, 1 file) — comments between `{` and the first field confuse the
-   block parser.
-
-Plus 1 minor GLR-recovery edge in `IMS_CommonTemplates.ttcn` (2 errors).
+The 2 remaining ERROR nodes (1 file) come from one minor GLR-recovery edge
+in `IMS_CommonTemplates.ttcn` — a template assignment with a trailing
+`ifpresent` matching attribute on the expression (`... := f(args) ifpresent;`).

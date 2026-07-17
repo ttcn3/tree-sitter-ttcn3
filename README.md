@@ -5,36 +5,50 @@ A [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for
 
 ## Status
 
-`v0.1.1` — parses real-world 3GPP conformance TTCN-3 code at **97.7% clean**
-(376/385 files in the NR5GC corpus have 0 errors; remaining 9 files contain
-18 errors). The previous `v0.1.0` limit at 83.6% clean was traced to a
-shift-reduce conflict in the LR(1) parse table: `ident '<'` could start either
-a `type_instantiation_expression` (with `prec(PREC.primary)`) or a
-`rel_expression`. Resolved by dropping the static precedence on
-`type_instantiation_expression`, switching it to `prec.dynamic(-1, ...)`, and
-declaring the table-level conflict explicitly (`[$.reference,
-$.type_instantiation_expression]` and `[$.name,
-$.type_instantiation_expression]`) so Tree-sitter's GLR engine forks at
-runtime. Zero regressions; corpus size delta is +270 bytes.
+`v0.2.0` — parses real-world 3GPP conformance TTCN-3 code at **99.7% clean**
+(384/385 files in the NR5GC corpus have 0 errors; the 1 remaining file has
+2 ERROR nodes). Up from v0.1.1's 97.7% / 18 errors. Parser is generated
+without warnings; 158/158 corpus tests pass.
 
-The 9 remaining files have 18 errors across **3 distinct grammar gaps** that
-are not `rel_expression`-related:
+The v0.2.0 jump closed **four distinct grammar gaps** that v0.1.1 left open
+on top of the v0.1.1→v0.1.0 rel_expression conflict resolution:
 
-- **`-> value v_X` redirect inside `receive()` call** (5 errors, 4 files) —
-  TTCN-3 spec §22.2; `redirection_expr` is not accepted in receive-argument
-  position.
-- **Array type with explicit size `[N]`** (1 error, 1 file) — e.g.
-  `type float PTWLengthParameters[16];`. Array types with size specifier are
-  unimplemented.
-- **Inline `/* @status ... */` comment inside `type record` body** (4 errors,
-  1 file) — comments between `{` and the first field confuse the block parser.
+- **`-> value v_X` redirect inside `check(receive(...))`** — added the
+  `inline_communication_op` rule (spec rule 372: a `check()` parameter may
+  be an inline port operation), and taught `port_redirect` to accept the
+  `value` / `sender` / `verdict` / `param` / `timestamp` / `@index value`
+  keyword forms alongside the bare-target form.
+- **Array type with explicit size `[N]`** — added optional `array_def` field
+  to `subtype` so `type float PTWLengthParameters[16];` parses.
+- **Inline `union` / `record` / `set` blocks inside `type record` body** —
+  added `nested_union_type` / `nested_record_type` / `nested_set_type` to
+  the `nested_type` dispatcher so a field may declare an anonymous
+  structural type inline.
+- **`complement(...)` with multiple arguments** — switched from a single
+  `_expression` to `sepBy1(',', $._expression)`, matching the real-world
+  pattern `complement('00'O, 'FF'O)`.
+- **Formal-parameter default with trailing `ifpresent`** — `parameter`'s
+  default rule now accepts an optional `ifpresent` matching attribute.
 
-Plus 1 minor GLR-recovery edge: `IMS_CommonTemplates.ttcn` picked a different
-recovery path at `fl_SIP_GenericParamCheckAndGetValue(...)` (leading-underscore
-function name inside a `return` statement). Tree is still built correctly;
-produces one extra ERROR marker.
+The 2 remaining ERROR nodes are a single GLR-recovery edge in
+`IMS_CommonTemplates.ttcn` at a template assignment whose RHS is a function
+call followed by a trailing `ifpresent` matching attribute
+(`... := f(args) ifpresent;`). The tree is otherwise correctly built.
 
 **158/158 corpus tests pass** (152 original + 3 real-world + 2 HTTP + 1 regression).
+
+## Earlier milestones
+
+- **v0.1.1** — 97.7% clean (376/385, 18 errors). Diagnosed the `ident '<'`
+  shift-reduce conflict on `type_instantiation_expression` vs.
+  `rel_expression`: the static `prec(PREC.primary)` on type instantiation was
+  committing the LR(1) table to the generics path on every
+  `ref < num` pattern. Resolved by dropping the static precedence, switching
+  to `prec.dynamic(-1, ...)`, and declaring the table-level conflicts
+  (`[$.reference, $.type_instantiation_expression]` and `[$.name,
+  $.type_instantiation_expression]`) so Tree-sitter's GLR engine forks at
+  runtime. Zero regressions; parser size +270 bytes.
+- **v0.1.0** — 83.6% clean (322/385, 204 errors).
 
 ## Language support
 
