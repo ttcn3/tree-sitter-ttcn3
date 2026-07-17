@@ -159,15 +159,13 @@ module M {
           (port_redirect
             (primary
               (reference))))
-        (reference)
         (receive_stmt
           (reference)
           (primary
             (reference))
           (port_redirect
             (primary
-              (reference))))
-        (reference)))))
+              (reference))))))))
 
 ===
 Port receive - with from clause
@@ -243,8 +241,7 @@ module M {
             (reference))
           (port_redirect
             (primary
-              (reference))))
-        (reference)))))
+              (reference))))))))
 
 ===
 Port getcall
@@ -274,8 +271,7 @@ module M {
             (reference))
           (port_redirect
             (primary
-              (reference))))
-        (reference)))))
+              (reference))))))))
 
 ===
 Port getreply
@@ -305,8 +301,7 @@ module M {
             (reference))
           (port_redirect
             (primary
-              (reference))))
-        (reference)))))
+              (reference))))))))
 
 ===
 Port catch - timeout
@@ -816,15 +811,13 @@ module M {
           (port_redirect
             (primary
               (reference))))
-        (reference)
         (killed_stmt
           (reference))
         (killed_stmt
           (reference)
           (port_redirect
             (primary
-              (reference))))
-        (reference)))))
+              (reference))))))))
 
 ===
 AliveOp / RunningOp with redirect

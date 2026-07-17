@@ -60,6 +60,11 @@ module.exports = grammar({
     // Conflicts with predefined_func_name (which also accepts 2-arg calls). GLR resolves.
     [$.decmatch, $.predefined_func_name],
 
+    // V1.17: `? length(...)` is ambiguous between `any_value` (one rule) and
+    // `any_value` + `extra_matching_attributes` (`?` then `length(...)`).
+    // GLR resolves in favor of the any_value interpretation.
+    [$.any_value],
+
     // S2.4: `port.send(t) to all component` — the `to all component` tail
     // could be either a `to_clause` ending the send_stmt, or a fresh
     // `reference` (since `all component` is aliased as `_identifier`).
@@ -150,6 +155,15 @@ module.exports = grammar({
     // `(expr)` parses as either `parenthesized_expression` or
     // `template_values` (a single-element tuple). Let GLR pick.
     [$.parenthesized_expression, $.template_values],
+
+    // NR5GC: `ref < num` / `ref > num` / `ref < ref` / `ref < (expr)` inside
+    // conditions and template_values lists. The parser can't decide locally
+    // whether `ident '<'` starts a relational_expression (math) or a
+    // type_instantiation_expression (generics). The conflict declarations
+    // combined with `prec.dynamic(-1, ...)` on type_instantiation_expression
+    // force the GLR engine to fork and pick the correct parse at runtime.
+    [$.reference, $.type_instantiation_expression],
+    [$.name, $.type_instantiation_expression],
   ],
 
   rules: {
@@ -364,11 +378,16 @@ module.exports = grammar({
       field('attributes', optional($.attributes)),
     ),
 
+    // V1.16: subtype accepts an optional array_def after the parameterized
+    // name (e.g. `type float PTWLengthParameters[16];`). Per TTCN-3 spec,
+    // a subtype definition may carry size constraints declared as array
+    // dimensions on the new type's identifier.
     subtype: $ => seq(
       field('visibility', optional($.visibility)),
       'type',
       field('super_type', $.nested_type),
       $._parameterized_name,
+      field('array_def', optional($.array_def)),
       field('value_constraint', optional($.template_values)),
       field('length_constraint', optional($.length_spec)),
       field('pattern_constraint', optional($.pattern_constraint)),
@@ -490,6 +509,7 @@ module.exports = grammar({
       field('modifies', optional($._modifies_spec)),
       ':=',
       $._expression,
+      field('matching_attributes', optional($.extra_matching_attributes)),
       field('attributes', optional($.attributes)),
     ),
 
@@ -816,6 +836,15 @@ module.exports = grammar({
     wildcard: _ => '*',
     ifpresent: _ => 'ifpresent',
     length_attribute: $ => seq('length', '(', $._expression, ')'),
+    // Spec rule 95 ExtraMatchingAttributes — `ifpresent` and/or `length(...)`
+    // as a trailing matching attribute on a template body. Used on the
+    // `template` RHS so `template T x := f(args) ifpresent;` parses (NR5GC
+    // IMS_CommonTemplates.ttcn).
+    extra_matching_attributes: $ => choice(
+      $.ifpresent,
+      $.length_attribute,
+      seq($.length_attribute, $.ifpresent),
+    ),
     // Range: `( expr .. expr )` — spec B.1.1. May conflict with template_values; GLR resolves.
     range: $ => seq('(', $._expression, '..', $._expression, ')'),
     // ValueRange: `expr .. expr` (unparenthesized) — spec A.1.5 / B.1.1.
@@ -828,7 +857,7 @@ module.exports = grammar({
       field('upper', $._expression),
     )),
     // Remaining matching symbol function-like constructs (spec B.1.4–B.1.7).
-    complement: $ => seq('complement', '(', $._expression, ')'),
+    complement: $ => seq('complement', '(', sepBy1(',', $._expression), ')'),
     subset: $ => seq('subset', '(', $._expression, ')'),
     superset: $ => seq('superset', '(', $._expression, ')'),
     permutation: $ => seq('permutation', '(', sepBy1(',', $._expression), ')'),
@@ -871,7 +900,7 @@ module.exports = grammar({
       alias(seq('any', 'component'), $._identifier),
     ),
 
-    type_instantiation_expression: $ => prec(PREC.primary, seq(
+    type_instantiation_expression: $ => prec.dynamic(-1, seq(
       field('type', $._identifier),
       '<',
       sepBy(',', $.nested_type),
@@ -1106,7 +1135,24 @@ module.exports = grammar({
     // S2.4: spec rule 340 PortReceiveOp = ReceiveOpKeyword ["("TemplateInstance")"] [FromClause] [PortRedirect]
     // S2.4: spec rule 339 PortOrAny = ObjectReference | (AnyKeyword (PortKeyword | FromKeyword ValueRef))
     from_clause: $ => seq('from', choice($._expression, seq('any', 'component'))),
-    port_redirect: $ => seq('->', field('target', $._expression)),
+    // V1.16: port_redirect accepts both bare-target form (`-> v_X`) and the
+    // keyword-prefixed form (`-> value v_X`, `-> sender v_Y`, ...), which
+    // may chain multiple redirect targets. Spec rules 326-330 (SingleRedirect,
+    // RedirectWithValue, RedirectWithSender, RedirectWithParam, RedirectWithIndex).
+    port_redirect: $ => seq(
+      '->',
+      choice(
+        field('target', $._expression),
+        repeat1(choice(
+          seq('value', $._expression),
+          seq('sender', $._expression),
+          seq('verdict', $._expression),
+          seq('param', $._expression),
+          seq('timestamp', $._expression),
+          seq('@index', 'value', $._expression),
+        )),
+      ),
+    ),
     receive_stmt: $ => prec(1, seq(
       field('port', $.reference),
       '.',
@@ -1443,6 +1489,8 @@ module.exports = grammar({
       field('body', $.block),
     ),
 
+    // V1.16: nested_type accepts inline union/record/set blocks (used as the
+    // type of a record/set/union field). Example: `union { T1 a, T2 b }`.
     nested_type: $ => choice(
       $.reference,
       'anytype',
@@ -1450,6 +1498,9 @@ module.exports = grammar({
       $.nested_map_type,
       $.nested_record_of_type,
       $.nested_set_of_type,
+      $.nested_union_type,
+      $.nested_record_type,
+      $.nested_set_type,
     ),
 
     // Spec A.1.7.7 NestedRecordOfDef: "record" [StringLength] "of" TypeOrNestedTypeDef
@@ -1460,6 +1511,10 @@ module.exports = grammar({
     nested_set_of_type: $ => seq(
       'set', field('length_constraint', optional($.length_spec)), 'of', $.nested_type,
     ),
+
+    nested_union_type: $ => seq('union', '{', field('fields', sepBy(',', $.field)), '}'),
+    nested_record_type: $ => seq('record', '{', field('fields', sepBy(',', $.field)), '}'),
+    nested_set_type: $ => seq('set', '{', field('fields', sepBy(',', $.field)), '}'),
 
     // Spec A.26: NestedMapDef ::= "map" "from" Type "to" TypeOrNestedTypeDef.
     // Used as the type of a record/set/union field (no identifier follows the type).
@@ -1567,11 +1622,29 @@ module.exports = grammar({
     // NR5GC for: `f(args) ifpresent` where the function-call result is a
     // template that should only match when present. The same rule applies
     // to named form `name := expr ifpresent`.
+    // V1.16: actual_parameter additionally accepts an inline communication
+    // operation (e.g. `receive(...) -> value v_X` inside `check(...)`).
+    // Spec rule 372 CheckStatement permits an inline receive/trigger/etc.
+    // as a check parameter.
     actual_parameter: $ => choice(
       field('named', seq($.name, ':=', $._expression, field('ifpresent', optional($.ifpresent)))),
       seq($._expression, field('ifpresent', optional($.ifpresent))),
+      $.inline_communication_op,
     ),
 
+    // V1.16: inline communication op inside `check(...)` argument list.
+    // Spec rule 372: CheckParameter may be a port receive/trigger/getcall/
+    // getreply/catch/check operation.
+    inline_communication_op: $ => seq(
+      field('op', choice('receive', 'trigger', 'getcall', 'getreply', 'catch', 'check')),
+      field('template', optional(seq('(', $._expression, ')'))),
+      field('from', optional($.from_clause)),
+      field('redirect', optional($.port_redirect)),
+    ),
+
+    // V1.16: parameter default accepts an optional trailing `ifpresent`
+    // matching attribute (spec rule 95 ExtraMatchingAttributes). Used in
+    // NR5GC for formal template parameters with `ifpresent` defaults.
     parameter: $ => seq(
       field('direction', optional(choice('in', 'out', 'inout'))),
       field('template_restriction', optional($.nested_template)),
@@ -1579,7 +1652,7 @@ module.exports = grammar({
       field('name', $.name),
       field('array_def', optional($.array_def)),
       field('variadic', optional('...')),
-      field('default', optional(seq(':=', $._expression))),
+      field('default', optional(seq(':=', $._expression, field('ifpresent', optional($.ifpresent))))),
     ),
 
     type_parameters: $ => seq(

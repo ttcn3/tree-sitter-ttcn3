@@ -5,16 +5,41 @@ A [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for
 
 ## Status
 
-`v0.1.0` — parses real-world 3GPP conformance TTCN-3 code at 83.6% clean
-(322/385 files in the NR5GC corpus have 0 errors; remaining 63 files contain
-~204 errors, all of the same shape: `ref < num` / `ref > num` / `ref < ref` /
-`ref < (expr)` / `ref < expr` patterns inside `if` / `for` / `while` / `guarded`
-conditions and `template_values` lists. This is a tree-sitter LR(1) limitation,
-not a grammar bug — fixing it would require lifting `rel_expression` to be
-usable as a `condition` directly, which conflicts with `primary` precedence.
-Tracked as an unfixable without major grammar restructuring.)
+`v0.2.1` — parses real-world 3GPP conformance TTCN-3 code at **100% clean**
+(385/385 files in the NR5GC corpus have 0 errors; 0 ERROR nodes total).
+Up from v0.2.0's 99.7% / 2 errors. Parser is generated without warnings;
+159/159 corpus tests pass.
 
-**158/158 corpus tests pass** (152 original + 3 real-world + 2 HTTP + 1 regression).
+The v0.2.1 jump closed the **last grammar gap** left open by v0.2.0:
+
+- **Trailing `ifpresent` matching attribute on template assignment RHS** —
+  added an optional `extra_matching_attributes` field to the `template` rule
+  so `template T x := f(args) ifpresent;` parses (spec rule 95
+  ExtraMatchingAttributes). One new conflict declared: `[$.any_value]` —
+  the existing `any_value: $ => seq('?', optional($.length_attribute))` rule
+  overlapped with the new `length_attribute` suffix on expressions; GLR
+  resolves in favor of the `any_value` interpretation.
+
+**159/159 corpus tests pass** (158 from v0.2.0 + 1 new V1.17 test for the
+template RHS ifpresent pattern).
+
+## Earlier milestones
+
+- **v0.2.0** — 99.7% clean (384/385, 2 errors). Closed four grammar gaps on
+  top of v0.1.1: `-> value v_X` redirect inside `check(receive(...))`,
+  array type with explicit size, inline `union`/`record`/`set` blocks in
+  `type record` body, `complement(...)` with multiple args, and formal-
+  parameter default with trailing `ifpresent`.
+- **v0.1.1** — 97.7% clean (376/385, 18 errors). Diagnosed the `ident '<'`
+  shift-reduce conflict on `type_instantiation_expression` vs.
+  `rel_expression`: the static `prec(PREC.primary)` on type instantiation was
+  committing the LR(1) table to the generics path on every
+  `ref < num` pattern. Resolved by dropping the static precedence, switching
+  to `prec.dynamic(-1, ...)`, and declaring the table-level conflicts
+  (`[$.reference, $.type_instantiation_expression]` and `[$.name,
+  $.type_instantiation_expression]`) so Tree-sitter's GLR engine forks at
+  runtime. Zero regressions; parser size +270 bytes.
+- **v0.1.0** — 83.6% clean (322/385, 204 errors).
 
 ## Language support
 
