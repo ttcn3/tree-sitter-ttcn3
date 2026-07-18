@@ -4,9 +4,9 @@
 // (which no longer carries parser.c) need this hook to produce it on
 // demand. Requires the `tree-sitter` CLI on PATH.
 
-const { existsSync } = require('fs');
-const { join } = require('path');
-const { spawnSync } = require('child_process');
+const {existsSync} = require('fs');
+const {join} = require('path');
+const {spawnSync} = require('child_process');
 
 const parserPath = join(__dirname, '..', 'src', 'parser.c');
 
@@ -23,5 +23,5 @@ if (cli.status === 0) {
 }
 
 // Fall back to a globally installed tree-sitter if npx does not have it.
-const fallback = spawnSync('tree-sitter', ['generate'], { stdio: 'inherit' });
+const fallback = spawnSync('tree-sitter', ['generate'], {stdio: 'inherit'});
 process.exit(fallback.status === 0 ? 0 : 1);

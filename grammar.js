@@ -1741,18 +1741,22 @@ module.exports = grammar({
 });
 
 /**
+ * Zero or more `rule` separated by `sep` (final `sep` optional).
  *
- * @param sep
- * @param rule
+ * @param {Rule} sep
+ * @param {Rule} rule
+ * @returns {Rule}
  */
 function sepBy(sep, rule) {
   return optional(sepBy1(sep, rule));
 }
 
 /**
+ * One or more `rule` separated by `sep` (final `sep` optional).
  *
- * @param sep
- * @param rule
+ * @param {Rule} sep
+ * @param {Rule} rule
+ * @returns {Rule}
  */
 function sepBy1(sep, rule) {
   return seq(rule, repeat(seq(sep, rule)), optional(sep));
