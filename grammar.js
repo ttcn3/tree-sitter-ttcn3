@@ -177,8 +177,8 @@ module.exports = grammar({
     source_file: $ => choice(repeat(seq($._definition, optional(';'))), $._expression),
 
     // For debugging purposes
-    //source_file: $ => $._expression,
-    //source_file: $ => repeat(seq($._definition, optional(';'))),
+    // source_file: $ => $._expression,
+    // source_file: $ => repeat(seq($._definition, optional(';'))),
 
     _definition: $ => choice(
       $.altstep,
@@ -793,8 +793,8 @@ module.exports = grammar({
 
     presence_check: $ => choice(
       seq(field('function', 'ispresent'), '(', field('operand', $._expression), ')'),
-      seq(field('function', 'isbound'),   '(', field('operand', $._expression), ')'),
-      seq(field('function', 'isvalue'),  '(', field('operand', $._expression), ')'),
+      seq(field('function', 'isbound'), '(', field('operand', $._expression), ')'),
+      seq(field('function', 'isvalue'), '(', field('operand', $._expression), ')'),
       seq(field('function', 'ischosen'), '(', field('operand', $._expression), ',', field('variant', $._identifier), ')'),
     ),
 
@@ -805,8 +805,8 @@ module.exports = grammar({
     ),
 
     // Composite literal (spec A.526 / B.1.2): list notation `{ expr, … }`.
-// Spec rule 95 ExtraMatchingAttributes allows a trailing `ifpresent` on
-// the body, matching V1.6 for compound_value.
+    // Spec rule 95 ExtraMatchingAttributes allows a trailing `ifpresent` on
+    // the body, matching V1.6 for compound_value.
     composite_literal: $ => seq(
       '{', sepBy1(',', $._expression), '}',
       field('body_ifpresent', optional($.ifpresent)),
@@ -863,8 +863,8 @@ module.exports = grammar({
     permutation: $ => seq('permutation', '(', sepBy1(',', $._expression), ')'),
     decmatch: $ => seq('decmatch', '(', $._expression, ',', $._expression, ')'),
     // Pattern match (spec §15.7 / B.1.4): `pattern [ @nocase ] EXPR` —
-// `@nocase` is a template restriction that makes the pattern case-insensitive.
-// Used in IMS templates (NR5GC IMS_SIP_Templates.ttcn).
+    // `@nocase` is a template restriction that makes the pattern case-insensitive.
+    // Used in IMS templates (NR5GC IMS_SIP_Templates.ttcn).
     pattern_match: $ => seq('pattern', field('nocase', optional('@nocase')), field('pattern', $._expression)),
 
     function_literal: $ => seq(
@@ -1568,11 +1568,11 @@ module.exports = grammar({
         field('outer_type', $.reference),
         'with',
         field('translator', $.reference),
-        '(', ')',))),
+        '(', ')'))),
     ),
 
     attributes: $ => seq(
-      'with', '{', repeat(seq($.attribute, optional(';'))), '}'
+      'with', '{', repeat(seq($.attribute, optional(';'))), '}',
     ),
 
     attribute: $ => seq(
@@ -1607,14 +1607,14 @@ module.exports = grammar({
     parameters: $ => seq(
       '(',
       sepBy(',', $.parameter),
-      ')'
+      ')',
     ),
 
     // Actual parameter list: named assignments (`name := expr`) and positional expressions (spec A.1.6.8)
     actual_parameters: $ => seq(
       '(',
       sepBy(',', $.actual_parameter),
-      ')'
+      ')',
     ),
 
     // V1.11: actual_parameter accepts an optional trailing `ifpresent` as a
@@ -1679,15 +1679,15 @@ module.exports = grammar({
     return_type: $ => seq(
       'return',
       field('template_restriction', optional($.nested_template)),
-      field('type', $.nested_type),  // NOTE: Nested types support ArrayDef due to index_expression in reference
+      field('type', $.nested_type), // NOTE: Nested types support ArrayDef due to index_expression in reference
     ),
 
     nested_template: $ => choice(
-      seq("template", optional(seq('(', $.template_restriction, ')'))),
-      $.template_restriction
+      seq('template', optional(seq('(', $.template_restriction, ')'))),
+      $.template_restriction,
     ),
 
-    template_restriction: _ => choice("omit", "value", "present"),
+    template_restriction: _ => choice('omit', 'value', 'present'),
 
     modifiers: $ => repeat1($.modifier),
 
@@ -1712,7 +1712,7 @@ module.exports = grammar({
 
     modifier: _ => choice(
       '@abstract', '@control', '@decoded', '@default', '@deterministic',
-      '@fuzzy', '@index', '@lazy', '@local', '@nocase', '@nodefault'
+      '@fuzzy', '@index', '@lazy', '@local', '@nocase', '@nodefault',
     ),
 
     boolean_literal: _ => choice('true', 'false'),
@@ -1722,7 +1722,7 @@ module.exports = grammar({
     octetstring: $ => /'([0-9A-Fa-f*? ])*'(o|O)/,
     malformed_string: $ => /'[^']+'[a-zA-Z_]*/,
 
-    number: _ => token(seq(/\d[\d_]*(\.\d[\d_]*)?/, optional(/[eE][+-]?\d[\d_]*/),)),
+    number: _ => token(seq(/\d[\d_]*(\.\d[\d_]*)?/, optional(/[eE][+-]?\d[\d_]*/))),
 
     reserved_number: _ => choice('infinity', 'not_a_number'),
 
@@ -1732,20 +1732,30 @@ module.exports = grammar({
       seq(
         '/*',
         /[^*]*\*+([^/*][^*]*\*+)*/,
-        '/'
-      )
+        '/',
+      ),
     )),
 
 
-  }
+  },
 });
 
+/**
+ *
+ * @param sep
+ * @param rule
+ */
 function sepBy(sep, rule) {
-  return optional(sepBy1(sep, rule))
+  return optional(sepBy1(sep, rule));
 }
 
+/**
+ *
+ * @param sep
+ * @param rule
+ */
 function sepBy1(sep, rule) {
-  return seq(rule, repeat(seq(sep, rule)), optional(sep))
+  return seq(rule, repeat(seq(sep, rule)), optional(sep));
 }
 
 

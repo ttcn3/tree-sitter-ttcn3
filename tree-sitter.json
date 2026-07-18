@@ -1,0 +1,55 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "ttcn3",
+      "camelcase": "TTCN3",
+      "title": "TTCN-3 (Testing and Test Control Notation version 3)",
+      "scope": "source.ttcn3",
+      "path": ".",
+      "file-types": [
+        "ttcn"
+      ],
+      "injection-regex": "^ttcn$",
+      "class-name": "TreeSitterTtcn3",
+      "highlights": [
+        "queries/highlights.scm"
+      ],
+      "injections": [
+        "queries/injections.scm"
+      ],
+      "tags": [
+        "queries/tags.scm"
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "0.2.1",
+    "license": "MIT",
+    "description": "TTCN-3 grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "Matthias Simon",
+        "email": ""
+      },
+      {
+        "name": "Jerry Wang",
+        "email": "z.wang@ymail.com"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/ttcn3/tree-sitter-ttcn3",
+      "funding": ""
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "java": false,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}

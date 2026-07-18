@@ -1,5 +1,4 @@
 # Rust artifacts
-Cargo.lock
 target/
 
 # Node artifacts
@@ -12,7 +11,6 @@ node_modules/
 .build/
 
 # Go artifacts
-go.sum
 _obj/
 
 # Python artifacts
@@ -20,6 +18,7 @@ _obj/
 dist/
 *.egg-info
 *.whl
+__pycache__/
 
 # C artifacts
 *.a
@@ -28,6 +27,13 @@ dist/
 *.dylib
 *.dll
 *.pc
+*.exp
+*.lib
+
+# Zig artifacts
+.zig-cache/
+zig-cache/
+zig-out/
 
 # Example dirs
 /examples/*/
@@ -37,13 +43,20 @@ dist/
 *.obj
 *.o
 
-# Tree-sitter generated parser artifacts (regenerate via 'tree-sitter generate')
-src/parser.c
-src/grammar.json
-src/node-types.json
+# Archives
+*.tar.gz
+*.tgz
+*.zip
+*.jar
+
+# Tree-sitter CLI native binary (downloaded by tree-sitter-cli postinstall)
+/tree-sitter
 
 # Reference TTCN code
 references/code/*
 
 # omo artifacts
 .omo/
+
+# serena
+.serena/
