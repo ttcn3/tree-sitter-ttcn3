@@ -1,0 +1,1148 @@
+===
+Template with (value) restriction
+===
+template (value) integer t := 5;
+---
+
+(source_file
+  (template
+    (template_restriction)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with (present) restriction
+===
+template (present) integer t := 5;
+---
+
+(source_file
+  (template
+    (template_restriction)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with (omit) restriction
+===
+template (omit) integer t := omit;
+---
+
+(source_file
+  (template
+    (template_restriction)
+    (name)
+    (name)
+    (primary)))
+
+===
+Template without restriction
+===
+template integer t := 5;
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Function with template (value) parameter
+===
+function f(template (value) integer p_x) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Function with template (omit) parameter
+===
+function f(template (omit) HttpMessageBody p_body) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Function with template (present) parameter
+===
+function f(template (present) ServerVal_List p_tokens) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Function with bare template parameter (no restriction)
+===
+function f(template integer p_x) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template)
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Var template with (omit) restriction
+===
+var template (omit) ContentType v_ct := omit;
+---
+
+(source_file
+  (var_decl
+    (nested_template
+      (template_restriction))
+    (nested_type
+      (reference))
+    (declarator
+      (name)
+      (primary))))
+
+===
+Var template with (present) restriction
+===
+var template (present) UserAgent v_ua := 5;
+---
+
+(source_file
+  (var_decl
+    (nested_template
+      (template_restriction))
+    (nested_type
+      (reference))
+    (declarator
+      (name)
+      (primary
+        (number)))))
+
+===
+Module parameter with template (value) restriction
+===
+modulepar template (value) integer px := 5;
+---
+
+(source_file
+  (module_parameter
+    (nested_template
+      (template_restriction))
+    (nested_type
+      (reference))
+    (declarator
+      (name)
+      (primary
+        (number)))))
+
+===
+Const with template (value) restriction
+===
+const template (value) integer c := 5;
+---
+
+(source_file
+  (const_decl
+    (nested_template
+      (template_restriction))
+    (nested_type
+      (reference))
+    (declarator
+      (name)
+      (primary
+        (number)))))
+
+===
+Return type with template (value) restriction
+===
+function f() return template (value) integer {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters)
+    (return_type
+      (nested_template
+        (template_restriction))
+      (nested_type
+        (reference)))
+    (block)))
+
+===
+Function with regular (non-template) parameter
+===
+function f(integer p_x) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Function with multiple parameters, mixed template/value
+===
+function f(template (value) integer p_x, integer p_y, template (omit) charstring p_z) {}
+---
+
+(source_file
+  (func
+    (name)
+    (parameters
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name))
+      (parameter
+        (nested_type
+          (reference))
+        (name))
+      (parameter
+        (nested_template
+          (template_restriction))
+        (nested_type
+          (reference))
+        (name)))
+    (block)))
+
+===
+Template with @fuzzy modifier
+===
+template @fuzzy integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with @deterministic modifier
+===
+template @deterministic integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with @abstract modifier
+===
+template @abstract integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with @fuzzy @deterministic modifiers
+===
+template @fuzzy @deterministic integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with all three modifiers
+===
+template @fuzzy @deterministic @abstract integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Function with @fuzzy modifier
+===
+function @fuzzy f() {}
+---
+
+(source_file
+  (func
+    (template_modifier)
+    (name)
+    (parameters)
+    (block)))
+
+===
+Function with @deterministic modifier
+===
+function @deterministic f() {}
+---
+
+(source_file
+  (func
+    (template_modifier)
+    (name)
+    (parameters)
+    (block)))
+
+===
+Template with @fuzzy @abstract (skip @deterministic)
+===
+template @fuzzy @abstract integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with wrong-order modifiers: error
+===
+template @deterministic @fuzzy integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (ERROR)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with formal parameters only
+===
+template MyTemplate(integer p_x) := p_x;
+---
+
+(source_file
+  (template
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (reference))))
+
+===
+Template with template formal parameter
+===
+template Generic(in T T_name) := 5;
+---
+
+(source_file
+  (template
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (number))))
+
+===
+Template with mixed formal parameters
+===
+template Both(in T T_name, integer p_x) := p_x;
+---
+
+(source_file
+  (template
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name))
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (reference))))
+
+===
+Template with type prefix and modifiers
+===
+template @fuzzy integer t := 5;
+---
+
+(source_file
+  (template
+    (template_modifier)
+    (name)
+    (name)
+    (primary
+      (number))))
+
+===
+Template with type prefix and formal parameters
+===
+template integer t(integer p_x) := 5;
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (number))))
+
+===
+Template with no type, no params, no modifiers
+===
+template t := 5;
+---
+
+(source_file
+  (template
+    (name)
+    (primary
+      (number))))
+
+===
+Template with array value body
+===
+template integer MyArr := [ 1, 2, 3 ];
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (array_value
+        (primary
+          (number))
+        (primary
+          (number))
+        (primary
+          (number))))))
+
+===
+Template with compound value body (field assignments)
+===
+template MyRec MyRec_t := { field1 := 1, field2 := "hello" };
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (number))
+        (name)
+        (primary
+          (charstring))))))
+
+===
+Template with composite literal body (list notation)
+===
+template integer MySet := { 1, 2, 3 };
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (composite_literal
+        (primary
+          (number))
+        (primary
+          (number))
+        (primary
+          (number))))))
+
+===
+Template with ? (any value) body
+===
+template integer AnyVal := ?;
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (any_value))))
+
+===
+Template with * (wildcard) body
+===
+template MyRec WildcardT := *;
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (wildcard))))
+
+===
+Template with ifpresent body
+===
+template MyRec IfPresentT := ifpresent;
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (ifpresent))))
+
+===
+Template with length attribute body
+===
+template MyRec LengthT := length(2);
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (length_attribute
+        (primary
+          (number))))))
+
+===
+Template with any value with length attribute
+===
+template bitstring WildcardLenT := ? length(7);
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (any_value
+        (length_attribute
+          (primary
+            (number)))))))
+
+===
+Template with range body
+===
+template integer Ranged := (1 .. 10);
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (parenthesized_expression
+        (range_expression
+          (primary
+            (number))
+          (primary
+            (number)))))))
+
+===
+Template with complement body
+===
+template MyRec CompT := complement({1, 2, 3});
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (complement
+        (primary
+          (composite_literal
+            (primary
+              (number))
+            (primary
+              (number))
+            (primary
+              (number))))))))
+
+===
+Template with subset body
+===
+template MyRec SubT := subset({1, 2, 3});
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (subset
+        (primary
+          (composite_literal
+            (primary
+              (number))
+            (primary
+              (number))
+            (primary
+              (number))))))))
+
+===
+Template with superset body
+===
+template MyRec SupT := superset({1});
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (superset
+        (primary
+          (composite_literal
+            (primary
+              (number))))))))
+
+===
+Template with permutation body
+===
+template MyRec PermT := permutation({1, 2, 3});
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (permutation
+        (primary
+          (composite_literal
+            (primary
+              (number))
+            (primary
+              (number))
+            (primary
+              (number))))))))
+
+===
+Template with decmatch body
+===
+template MyRec DecT := decmatch("X", "Y");
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (decmatch
+        (primary
+          (charstring))
+        (primary
+          (charstring))))))
+
+===
+Template with pattern body
+===
+template charstring PatT := pattern "abc*";
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (pattern_match
+        (primary
+          (charstring))))))
+
+===
+Template with modifies clause (derived template)
+===
+template MyRec T1 := { field1 := 1 };
+template MyRec T2 modifies T1 := { field1 := 2 };
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (number)))))
+  (template
+    (name)
+    (name)
+    (name)
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (number))))))
+
+===
+Template with modifies and parameterized base
+===
+template MyRec T3(integer p) := { field1 := p };
+template MyRec T4(integer p) modifies T3(p) := { field1 := 0 };
+---
+
+(source_file
+  (template
+    (name)
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (reference)))))
+  (template
+    (name)
+    (name)
+    (parameters
+      (parameter
+        (nested_type
+          (reference))
+        (name)))
+    (name)
+    (primary
+      (reference))
+    (primary
+      (compound_value
+        (name)
+        (primary
+          (number))))))
+
+===
+Function call with named actual parameters
+===
+module M {
+  function f(integer x, integer y) { return x + y }
+  testcase tc() { f(x := 1, y := 2) }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name))
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (block
+        (return_stmt
+          (add_expression
+            (primary
+              (reference))
+            (primary
+              (reference))))))
+    (testcase
+      (name)
+      (parameters)
+      (block
+        (reference
+          (function_call_expression
+            (reference)
+            (actual_parameters
+              (actual_parameter
+                (name)
+                (primary
+                  (number)))
+              (actual_parameter
+                (name)
+                (primary
+                  (number))))))))))
+
+===
+V16 Template body trailing ifpresent
+===
+module M {
+  type record R { integer f }
+  template R t := { f := 1 } ifpresent
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (template
+      (name)
+      (name)
+      (primary
+        (compound_value
+          (name)
+          (primary
+            (number))
+          (ifpresent))))))
+
+===
+Template body trailing ifpresent (list notation)
+===
+module M {
+  template integer t := { 1, 2, 3 } ifpresent
+}
+---
+
+(source_file
+  (module
+    (name)
+    (template
+      (name)
+      (name)
+      (primary
+        (composite_literal
+          (primary
+            (number))
+          (primary
+            (number))
+          (primary
+            (number))
+          (ifpresent))))))
+
+===
+Function call argument with trailing ifpresent
+===
+module M {
+  type record R { integer f }
+  template R cr_Inner(integer p) := { f := p };
+  function f_Outer(R p) {}
+  function test() {
+    f_Outer(cr_Inner(1) ifpresent);
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (template
+      (name)
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (primary
+        (compound_value
+          (name)
+          (primary
+            (reference)))))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (block))
+    (func
+      (name)
+      (parameters)
+      (block
+        (reference
+          (function_call_expression
+            (reference)
+            (actual_parameters
+              (actual_parameter
+                (primary
+                  (reference
+                    (function_call_expression
+                      (reference)
+                      (actual_parameters
+                        (actual_parameter
+                          (primary
+                            (number)))))))
+                (ifpresent)))))))))
+
+===
+Template RHS with trailing ifpresent (spec rule 95)
+===
+module M {
+  type record GenValue { charstring quotedString }
+  function f_Caller(GenValue p) {}
+  template GenValue cr_GenValue_None := f_Caller({quotedString := ""}) ifpresent;
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (block))
+    (template
+      (name)
+      (name)
+      (primary
+        (reference
+          (function_call_expression
+            (reference)
+            (actual_parameters
+              (actual_parameter
+                (primary
+                  (compound_value
+                    (name)
+                    (primary
+                      (charstring)))))))))
+      (extra_matching_attributes
+        (ifpresent)))))
+
+===
+Template with pattern body using expression
+===
+module M {
+  type charstring MyPattern;
+  template MyPattern t := pattern ("ABC");
+}
+---
+
+(source_file
+  (module
+    (name)
+    (subtype
+      (nested_type
+        (reference))
+      (name))
+    (template
+      (name)
+      (name)
+      (primary
+        (pattern_match
+          (primary
+            (parenthesized_expression
+              (primary
+                (charstring)))))))))
+
+===
+Template with permutation of multiple elements
+===
+module M {
+  type record R { integer a, integer b, integer c }
+  template R t := { permutation (1, 2, 3) };
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name))
+      (field
+        (nested_type
+          (reference))
+        (name))
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (template
+      (name)
+      (name)
+      (primary
+        (composite_literal
+          (primary
+            (permutation
+              (primary
+                (number))
+              (primary
+                (number))
+              (primary
+                (number)))))))))
+
+===
+Template with pattern body and @nocase restriction
+===
+module M {
+  type charstring MyPattern;
+  template MyPattern t := pattern @nocase ("ABC");
+}
+---
+
+(source_file
+  (module
+    (name)
+    (subtype
+      (nested_type
+        (reference))
+      (name))
+    (template
+      (name)
+      (name)
+      (primary
+        (pattern_match
+          (primary
+            (parenthesized_expression
+              (primary
+                (charstring)))))))))
+
+===
+Real-world: parameterized template with modifies clause
+===
+module RealWorldTemplates {
+  type record R {
+    integer field1,
+    charstring field2
+  }
+
+  template R t_base := {
+    field1 := 1,
+    field2 := "hello"
+  }
+
+  template R t_mod modifies t_base := {
+    field1 := 2
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (record_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name))
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (template
+      (name)
+      (name)
+      (primary
+        (compound_value
+          (name)
+          (primary
+            (number))
+          (name)
+          (primary
+            (charstring)))))
+    (template
+      (name)
+      (name)
+      (name)
+      (primary
+        (compound_value
+          (name)
+          (primary
+            (number)))))))

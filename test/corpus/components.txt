@@ -3,3 +3,130 @@ Simple
 ===
 public type component C extends D,E {} with {}
 ---
+
+(source_file
+  (component_type
+    (visibility)
+    (name)
+    (references
+      (reference)
+      (reference))
+    (block)
+    (attributes)))
+
+===
+Port declaration with array dimension
+===
+module M {
+  type component C {
+    port LoopbackPort P;
+    port LoopbackPort P2[3];
+    port LoopbackPort P3 := P;
+    port LoopbackPort P4[N] := P;
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (component_type
+      (name)
+      (block
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)))
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)
+            (primary
+              (number))))
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)
+            (primary
+              (reference))))
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)
+            (primary
+              (reference))
+            (primary
+              (reference))))))))
+
+===
+Real-world: component with ports, timers, and variables
+===
+module RealWorldComponents {
+  type port LoopbackPort message {
+    inout integer
+  }
+
+  type component C {
+    port LoopbackPort P1;
+    port LoopbackPort P2[3];
+    timer t1 := 1.0;
+    timer t2[2];
+    var integer v_count := 0;
+    const integer c_max := 100;
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (port_type
+      (name)
+      (port_attributes
+        (port_message_types
+          (reference))))
+    (component_type
+      (name)
+      (block
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)))
+        (port_decl
+          (nested_type
+            (reference))
+          (port_declarator
+            (name)
+            (primary
+              (number))))
+        (timer_decl
+          (reference)
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (timer_decl
+          (reference)
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (const_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))))))

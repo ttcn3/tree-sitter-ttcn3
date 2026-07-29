@@ -1,0 +1,478 @@
+===
+Setverdict - bare verdict
+===
+module M {
+  testcase tc() runs on C { setverdict(pass) }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (setverdict_stmt
+          (primary
+            (verdict_literal)))))))
+
+===
+Setverdict - all verdict values parse
+===
+module M {
+  testcase tc() runs on C {
+    setverdict(pass)
+    setverdict(fail)
+    setverdict(inconc)
+    setverdict(none)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (setverdict_stmt
+          (primary
+            (verdict_literal)))
+        (setverdict_stmt
+          (primary
+            (verdict_literal)))
+        (setverdict_stmt
+          (primary
+            (verdict_literal)))
+        (setverdict_stmt
+          (primary
+            (verdict_literal)))))))
+
+===
+Setverdict - with log args
+===
+module M {
+  testcase tc() runs on C {
+    setverdict(pass, "step 1 ok", x)
+    setverdict(fail, "got ", v, " expected ", 5)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (setverdict_stmt
+          (primary
+            (verdict_literal))
+          (primary
+            (charstring))
+          (primary
+            (reference)))
+        (setverdict_stmt
+          (primary
+            (verdict_literal))
+          (primary
+            (charstring))
+          (primary
+            (reference))
+          (primary
+            (charstring))
+          (primary
+            (number)))))))
+
+===
+Getverdict - bare keyword
+===
+module M {
+  function f() return verdict { return getverdict }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (return_type
+        (nested_type
+          (reference)))
+      (block
+        (return_stmt)
+        (getverdict_stmt)))))
+
+===
+Getverdict - in expression context
+===
+module M {
+  testcase tc() runs on C {
+    if (getverdict == pass) { setverdict(pass) }
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (if_stmt
+          (equal_expression
+            (primary
+              (reference))
+            (primary
+              (verdict_literal)))
+          (block
+            (setverdict_stmt
+              (primary
+                (verdict_literal)))))))))
+
+===
+Log statement - variadic expressions
+===
+module M {
+  testcase tc() runs on C {
+    log("step 1 started")
+    log("x=", x, " y=", y)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (log_stmt
+          (primary
+            (charstring)))
+        (log_stmt
+          (primary
+            (charstring))
+          (primary
+            (reference))
+          (primary
+            (charstring))
+          (primary
+            (reference)))))))
+
+===
+Action statement - variadic
+===
+module M {
+  testcase tc() runs on C {
+    action("checkpoint reached")
+    action("value=", v)
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (action_stmt
+          (primary
+            (charstring)))
+        (action_stmt
+          (primary
+            (charstring))
+          (primary
+            (reference)))))))
+
+===
+Shorthand assignment - increment x++
+===
+module M {
+  function f() {
+    var integer v_x := 0
+    v_x++
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (assignment
+          (reference))))))
+
+===
+Shorthand assignment - decrement y--
+===
+module M {
+  function f() {
+    var integer v_y := 10
+    v_y--
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (assignment
+          (reference))))))
+
+===
+Shorthand assignment - in for loop post clause
+===
+module M {
+  function f() {
+    var integer v_i := 0
+    for (; v_i == 10; v_i++) { }
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters)
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (for_stmt
+          (equal_expression
+            (primary
+              (reference))
+            (primary
+              (number)))
+          (assignment
+            (reference))
+          (block))))))
+
+===
+Select case with multiple templates per clause
+===
+module M {
+  function f(x integer) {
+    select (x) {
+      case (1, 2) {}
+      case (3, 4,) {}
+      case else {}
+    }
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (block
+        (select_stmt
+          (primary
+            (reference))
+          (select_clause
+            (select_case_clause
+              (primary
+                (number))
+              (primary
+                (number))
+              (block)))
+          (select_clause
+            (select_case_clause
+              (primary
+                (number))
+              (primary
+                (number))
+              (block)))
+          (select_clause
+            (select_else_clause
+              (block))))))))
+
+===
+Real-world: select union with case else clause
+===
+module HTTP_SelectUnion {
+  type union U {
+    charstring text,
+    octetstring binary
+  }
+
+  function f_select(in U p_val) return integer {
+    var integer v_Length := 0;
+
+    select union (p_val) {
+      case (text)   { v_Length := lengthof(p_val.text); }
+      case (binary) { v_Length := lengthof(p_val.binary); }
+      case else     { v_Length := -1; }
+    }
+    return v_Length;
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (union_type
+      (name)
+      (field
+        (nested_type
+          (reference))
+        (name))
+      (field
+        (nested_type
+          (reference))
+        (name)))
+    (func
+      (name)
+      (parameters
+        (parameter
+          (nested_type
+            (reference))
+          (name)))
+      (return_type
+        (nested_type
+          (reference)))
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (select_union_stmt
+          (primary
+            (reference))
+          (select_clause
+            (select_case_clause
+              (primary
+                (reference))
+              (block
+                (assignment
+                  (reference)
+                  (primary
+                    (predefined_func_call
+                      (predefined_func_name)
+                      (primary
+                        (reference
+                          (selector_expression
+                            (reference)
+                            (reference))))))))))
+          (select_clause
+            (select_case_clause
+              (primary
+                (reference))
+              (block
+                (assignment
+                  (reference)
+                  (primary
+                    (predefined_func_call
+                      (predefined_func_name)
+                      (primary
+                        (reference
+                          (selector_expression
+                            (reference)
+                            (reference))))))))))
+          (select_clause
+            (select_else_clause
+              (block
+                (assignment
+                  (reference)
+                  (unary_expression
+                    (primary
+                      (number))))))))
+        (return_stmt
+          (primary
+            (reference)))))))
+
+===
+Regression V1.8: setverdict with expression and log arguments
+===
+module M {
+  type component C {}
+  testcase tc() runs on C {
+    var integer v_score := 95;
+    setverdict(pass, "score=", v_score);
+    setverdict(fail);
+  }
+}
+---
+
+(source_file
+  (module
+    (name)
+    (component_type
+      (name)
+      (block))
+    (testcase
+      (name)
+      (parameters)
+      (reference)
+      (block
+        (var_decl
+          (nested_type
+            (reference))
+          (declarator
+            (name)
+            (primary
+              (number))))
+        (setverdict_stmt
+          (primary
+            (verdict_literal))
+          (primary
+            (charstring))
+          (primary
+            (reference)))
+        (setverdict_stmt
+          (primary
+            (verdict_literal)))))))

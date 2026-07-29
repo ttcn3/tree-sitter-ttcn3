@@ -1,0 +1,21 @@
+module MyExampleModule {
+
+  type record MyRecord {
+    integer   field1,
+    charstring field2
+  }
+
+  const integer MY_CONST := 42;
+
+  template MyRecord myTpl := {
+    field1 := 1,
+    field2 := "hello"
+  };
+
+  function myFunction() {
+  }
+
+} with {
+  encode "RAW"
+}
+

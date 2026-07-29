@@ -1,0 +1,30 @@
+module ComponentPortDemo {
+
+  signature MySig(integer p1, out boolean p2) return charstring;
+
+  type port MyPort message {
+    inout MySig
+  }
+
+  type component MyComponent {
+    port MyPort p;
+    timer t := 5.0;
+    var integer counter := 0
+  }
+
+  testcase tc_example() runs on MyComponent system MyComponent {
+    var charstring v_reply;
+
+    p.send(MySig(7, true));
+    p.receive(MySig(?, ?)) -> value v_reply;
+
+    t.start;
+    if (counter == 1) {
+      setverdict(pass);
+    } else {
+      setverdict(fail, "unexpected counter value");
+    }
+  }
+
+}
+

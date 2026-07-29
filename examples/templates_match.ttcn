@@ -1,0 +1,29 @@
+module TemplateMatchingDemo {
+
+  template integer t_any      := ?;
+  template integer t_range    := (0 .. 10);
+
+  template charstring t_dec   := decmatch("001", "002", "003");
+
+  template integer  t_wild    := *;
+
+  type record Pair {
+    integer   key,
+    charstring label
+  }
+
+  template Pair tpl_base(integer p_key) := {
+    key   := p_key,
+    label := "unknown"
+  };
+
+  template Pair tpl_capped(integer p_key) := {
+    key   := p_key,
+    label := complement({"err", "fail"})
+  } ifpresent;
+
+  template integer t_subset  := subset({1, 2, 3, 4, 5});
+  template integer t_omit     := omit;
+
+}
+

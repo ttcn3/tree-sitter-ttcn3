@@ -1,0 +1,49 @@
+module ControlFlowDemo {
+
+  type port IntPort message {
+    inout integer
+  }
+
+  type component Tester {
+    port IntPort p;
+  }
+
+  function demo(in integer p_limit, in boolean p_verbose) runs on Tester {
+    var integer v_sum    := 0;
+    var integer v_count  := 0;
+    var charstring v_msg := "";
+
+    if (p_limit > 0 and not p_verbose) {
+      v_count := p_limit;
+    } else if (p_limit <= 0 or p_verbose) {
+      setverdict(fail, "invalid input");
+      return;
+    }
+
+    for (var integer i := 0; i < p_limit; i := i + 1) {
+      v_sum := v_sum + i * i;
+      p.send(i);
+    }
+
+    while (v_count > 0) {
+      v_count := v_count - 1;
+    }
+
+    alt {
+      [] p.receive(integer:0) {
+        setverdict(pass, "got zero");
+      }
+      [] p.receive(?) {
+        repeat;
+      }
+      [else] {
+        setverdict(fail, "unexpected value");
+      }
+    }
+
+    v_msg := int2str(v_sum) & " total";
+    log(v_msg, " count=", v_count);
+  }
+
+}
+
