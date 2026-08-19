@@ -20,7 +20,7 @@
     "test": "./node_modules/.bin/tree-sitter generate && ./node_modules/.bin/tree-sitter test"
   },
   "dependencies": {
-    "node-addon-api": "^8.3.1",
+    "node-addon-api": "^8.9.2",
     "node-gyp-build": "^4.8.0"
   },
   "peerDependencies": {
